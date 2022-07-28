@@ -1,1 +1,1 @@
-# social-pattternn
+# social-patternn
