@@ -73,8 +73,11 @@ class SocialPatteRNNTrainer(BaseTrainer):
                 hist_abs.detach().cpu(), pat_abs[:, :, -1].detach().cpu(), 
                 seq_start_end, self.k_nearest, self.flatten).to(self.device)
             
-            hist_rel = hist_rel[:, :, :self.dim]
-            kld, nll, mse = self.model(hist_rel, pat_rel, soc)
+            if self.coord == "rel":
+                hist_rel = hist_rel[:, :, :self.dim]
+                kld, nll, mse = self.model(hist_rel, pat_rel, soc)
+            else:
+                kld, nll, mse = self.model(hist_abs, pat_rel, soc)
                 
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             batch_loss += loss['Loss']
@@ -136,8 +139,12 @@ class SocialPatteRNNTrainer(BaseTrainer):
                 seq_start_end, self.k_nearest, self.flatten).to(self.device)
             
             # eval burn-in process 
-            kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
-                hist_rel, hist_abs, pat_rel, soc, seq_start_end)
+            if self.coord == "rel":
+                kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
+                    hist_rel, hist_abs, pat_rel, soc, seq_start_end)
+            else: 
+                kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
+                    hist_abs, hist_abs, pat_rel, soc, seq_start_end)
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             
@@ -148,11 +155,13 @@ class SocialPatteRNNTrainer(BaseTrainer):
                 h, pat, soc = h_H.clone(), pat_H.clone(), soc_H.clone()
                 
                 # run inference to predict the trajectory's future steps
-                pred_rel = self.model.inference(
-                    x_H, self.fut_len, h, pat, soc, seq_start_end)
+                pred = self.model.inference(
+                    x_H, self.fut_len, h, pat, soc, seq_start_end, self.coord)
                 
-                # convert the prediction to absolute coords
-                pred = mutils.convert_rel_to_abs(pred_rel, x_H, permute=True)
+                if self.coord == "rel":
+                    # convert the prediction to absolute coords
+                    pred = mutils.convert_rel_to_abs(pred, x_H, permute=True)
+                    
                 pred_list.append(pred)
                     
             # compute best of num_samples
@@ -210,8 +219,12 @@ class SocialPatteRNNTrainer(BaseTrainer):
                 seq_start_end, self.k_nearest, self.flatten).to(self.device)
             
             # eval burn-in process 
-            kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
-                hist_rel, hist_abs, pat_rel, soc, seq_start_end)
+            if self.coord == "rel":
+                kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
+                    hist_rel, hist_abs, pat_rel, soc, seq_start_end)
+            else: 
+                kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
+                    hist_abs, hist_abs, pat_rel, soc, seq_start_end)
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             
@@ -222,22 +235,30 @@ class SocialPatteRNNTrainer(BaseTrainer):
                 h, pat, soc = h_H.clone(), pat_H.clone(), soc_H.clone()
                 
                 # run inference to predict the trajectory's future steps
-                pred_rel = self.model.inference(
-                    x_H, self.fut_len, h, pat, soc, seq_start_end)
+                pred = self.model.inference(
+                    x_H, self.fut_len, h, pat, soc, seq_start_end, self.coord)
                 
-                # convert the prediction to absolute coords
-                pred = mutils.convert_rel_to_abs(pred_rel, x_H, permute=True)
+                if self.coord == "rel":
+                    # convert the prediction to absolute coords
+                    pred = mutils.convert_rel_to_abs(pred, x_H, permute=True)
+                    
                 pred_list.append(pred)
                     
             # compute best of num_samples
             preds = torch.stack(pred_list)
-            _ = self.eval_metrics.update(fut_abs, preds, seq_start_end)
+            best_sample_idx = self.eval_metrics.update(
+                fut_abs, preds, seq_start_end)
             metrics = self.eval_metrics.get_metrics()
             
             self.eval_losses.update([loss], batch_size)
             losses = self.eval_losses.get_losses()
             metrics.update(losses)
             pbar.update(1)
+            
+            if self.visualize and i % self.plot_freq == 0:
+                self.generate_outputs(
+                    hist_abs, fut_abs, preds, best_sample_idx, seq_start_end, 
+                    f"epoch-{epoch+1}_test-{i}")
                                     
         return metrics
         

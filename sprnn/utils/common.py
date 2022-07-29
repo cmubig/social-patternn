@@ -84,7 +84,7 @@ def convert_rel_to_abs(traj_rel, start_pos, permute: bool = False):
 
 def compute_social_influences(
     traj: torch.tensor, goals: torch.tensor, seq_start_end: torch.tensor, 
-    max_agents: int, flatten: bool = True, normalize: bool = True
+    max_agents: int, flatten: bool = True,
 ) -> torch.tensor:
     """ Computes the agent-to-agents displacements from a position x_t in a 
     trajectory to the sub-goals in a pattern trajectory p_t of all agents. 
@@ -110,18 +110,9 @@ def compute_social_influences(
     for start, end in seq_start_end:
         num_agents = end - start
         
-        if num_agents > max_agents:
-            for i in range(start, end):
-                disp = goals[:traj_len, start:end] - traj[:traj_len, i].unsqueeze(1)
-                dist = torch.sqrt(torch.sum(disp ** 2, axis=2))
-                
-                _, idx = torch.topk(dist, max_agents, largest=False)
-                for t in range(traj_len):
-                    displacements[t, i, :] = disp[t, idx[t]]
-        else:
-            for i in range(start, end):
-                disp = goals[:traj_len, start:end] - traj[:traj_len, i].unsqueeze(1)
-                displacements[:, i, :num_agents] = disp[:, :num_agents]
+        for i in range(start, end):
+            disp = goals[:traj_len, start:end] - traj[:traj_len, i].unsqueeze(1)
+            displacements[:, i, :num_agents] = disp[:, :num_agents]
     
     if flatten:
         return displacements.flatten(start_dim=2)

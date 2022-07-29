@@ -1,9 +1,9 @@
 {
-    "base_config": "./config/111days/base_config.json",
+    "base_config": "./config/mcts/base_config.json",
 	
 	"exp_tag": "",
 	"trainer": "socpatternn-mlp",
-	"coord": "rel",
+	"coord": "abs",
 
 	"gpu_id": 0,
 	"use_cpu": true,
@@ -84,7 +84,7 @@
                 "layer_norm": false
 			},
 			"dec_pat": {
-				"in_size": 141,
+				"in_size": 123,
                 "hidden_size": [96],
                 "out_size": -1,
                 "dropout": 0.0,
@@ -93,8 +93,9 @@
 		},
 		"interaction_net": {
 			"type": "mlp",
+			"k_nearest": 2,
             "feat_soc": {
-                "in_size": 24,
+                "in_size": 6,
                 "hidden_size": [96],
                 "out_size": 96,
                 "dropout": 0.0,

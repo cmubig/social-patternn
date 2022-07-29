@@ -10,9 +10,9 @@
 		"max_agents": 2,
 		"hist_len": 20,
 		"fut_len": 50,
-		"pat_len": 10,
+		"pat_len": 8,
 		"step": 2,
-		"skip": 10
+		"skip": 5
 	},
 
 	"dataset": {
@@ -21,7 +21,7 @@
 		"load_npy": true,
 		"npy_path": "./data/processed/",
 		"txt_path": "./data/raw",
-		"train_batch_size": 64,
+		"train_batch_size": 128,
 		"val_batch_size": 64,
 		"test_batch_size": 64,
 		"loader_num_workers": 1,

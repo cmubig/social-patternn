@@ -229,10 +229,10 @@ class VRNNTrainer(BaseTrainer):
             metrics.update(losses)
             pbar.update(1)
             
-            # if self.visualize and i % self.plot_freq == 0:
-            #     self.generate_outputs(
-            #         hist_abs, fut_abs, preds, best_sample_idx, seq_start_end, 
-            #         f"epoch-{epoch+1}_test-{i}")
+            if self.visualize and i % self.plot_freq == 0:
+                self.create_visualizations(
+                    hist_abs, fut_abs, preds, best_sample_idx, seq_start_end, 
+                    f"epoch-{epoch+1}_test-{i}")
                         
         return metrics
         
@@ -244,8 +244,8 @@ class VRNNTrainer(BaseTrainer):
         """
         self.logger.info(f"{self.name} setting up model: {self.trainer}")
     
-        self.model = VRNN(self.config.MODEL, self.logger, self.device).to(
-            self.device)
+        self.model = VRNN(
+            self.config.MODEL, self.logger, self.device).to(self.device)
         
         self.optimizer = optim.AdamW(
             self.model.parameters(), lr=self.config.TRAIN.lr)

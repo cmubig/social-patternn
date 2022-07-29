@@ -75,7 +75,7 @@ class InteractionNet(nn.Module):
         x = x.flatten(start_dim=1)
         
         # down-project attended features
-        # x = self.proj(x)
+        x = self.proj(x)
         
         # return x, attention
         return x
@@ -314,7 +314,8 @@ class SocialPatteRNN(VRNN):
     @torch.no_grad()
     def inference(
         self, x_abs: tensor, fut_len: int, h: Variable, pat: tensor, soc: tensor, 
-        seq_start_end: tensor) -> tensor:
+        seq_start_end: tensor, coord: str
+    ) -> tensor:
         """ Inference (sampling) trajectories.
         
         Inputs:
@@ -383,7 +384,10 @@ class SocialPatteRNN(VRNN):
             _, h = self.rnn(h_embed, h)
             
             # compute new social influence
-            x_abs_t = x_abs_t + x_dec_mean_t
+            if coord == "rel":
+                x_abs_t = x_abs_t + x_dec_mean_t
+            else:
+                x_abs_t = x_dec_mean_t
             p_abs_t = convert_rel_to_abs(p_t_dec, x_abs_t)
             s_tm1 = compute_social_influences(
                 x_abs_t.unsqueeze(0).detach().cpu(), 

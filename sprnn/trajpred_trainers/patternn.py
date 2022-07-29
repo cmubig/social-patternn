@@ -66,8 +66,7 @@ class PatteRNNTrainer(BaseTrainer):
             
             batch_size = hist_rel.shape[1]        
             pat_rel = pat_rel[:, :, :, :self.dim]
-            
-            # NOTE: for debugging
+        
             # import pdb; pdb.set_trace()
             # pat_abs_rec = mutils.convert_rel_to_abs(pat_rel[0], hist_abs[0])
             
@@ -229,7 +228,8 @@ class PatteRNNTrainer(BaseTrainer):
                     
             # compute best of num_samples
             preds = torch.stack(pred_list)
-            _ = self.eval_metrics.update(fut_abs, preds, seq_start_end)
+            best_sample_idx = self.eval_metrics.update(
+                fut_abs, preds, seq_start_end)
             metrics = self.eval_metrics.get_metrics()
             
             self.eval_losses.update([loss], batch_size)
@@ -237,10 +237,10 @@ class PatteRNNTrainer(BaseTrainer):
             metrics.update(losses)
             pbar.update(1)
             
-            # if self.visualize and i % self.plot_freq == 0:
-            #     self.generate_outputs(
-            #         hist_abs, fut_abs, preds, best_sample_idx, seq_start_end, 
-            #         f"epoch-{epoch+1}_test-{i}")
+            if self.visualize and i % self.plot_freq == 0:
+                self.generate_outputs(
+                    hist_abs, fut_abs, preds, best_sample_idx, seq_start_end, 
+                    f"epoch-{epoch+1}_test-{i}")
                         
         return metrics
         
