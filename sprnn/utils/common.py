@@ -3,11 +3,12 @@
 # @brief:   This file contains the implementation common utility classes and 
 #           function needed by the modules in sprnn.
 # ------------------------------------------------------------------------------
+from numpy import dtype
 import torch
 import numpy as np
 
 # definitions below
-DIMS = [2, 3]
+DIMS = [2, 3, 6]
 COORDS = ["rel", "abs"]
 TRAJ_ENCODING_TYPE = ["mlp", "tcn"]
 ADJ_TYPE = ["fc", "fully-connected", "distance-similarity", "knn", "gaze"]
