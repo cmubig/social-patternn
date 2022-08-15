@@ -15,7 +15,8 @@
 		"eval_ckpt": false,
 		"ckpt_name": "ckpt_0.pth",
 		"ckpt_freq": 100,
-		"batch_size": 1,
+		"use_nll_gap": true,
+		"batch_size": 2,
 		"eval_batch_size": 8,
 		"num_epoch": 1000,
 		"num_iter": -1,
@@ -24,8 +25,8 @@
 		"lr": 1e-3,
 		"update_lr": false,
 		"start": 0,
-		"patience": 100,
-		"warmup": true,
+		"patience": 200,
+		"warmup": false,
 		"warmup_epochs": 50,
 		"gradient_clip": 10,
 		"seed": 1
@@ -42,7 +43,7 @@
 			"layer_norm": false
 		},
 		"encoder": {
-			"in_size": 288,
+			"in_size": 240,
 			"hidden_size": [96],
 			"out_size": 48,
 			"dropout": 0.0,
@@ -63,7 +64,7 @@
 			"layer_norm": false
 		},
 		"decoder": {
-			"in_size": 384,
+			"in_size": 336,
 			"hidden_size": [96],
 			"out_size": 4,
 			"dropout": 0.0,
@@ -75,7 +76,8 @@
 			"num_layers": 2
 		},
 		"pattern_net": {
-			"pat_len": 4,
+			"pat_len": 7,
+			"with_soc_feature": true,
 			"feat_pat": {
 				"in_size": -1,
                 "hidden_size": [96],
@@ -84,7 +86,7 @@
                 "layer_norm": false
 			},
 			"dec_pat": {
-				"in_size": 114,
+				"in_size": 158,
                 "hidden_size": [96],
                 "out_size": -1,
                 "dropout": 0.0,
@@ -97,7 +99,7 @@
             "feat_soc": {
                 "in_size": 10,
                 "hidden_size": [96],
-                "out_size": 96,
+                "out_size": 48,
                 "dropout": 0.0,
                 "layer_norm": false
 			}

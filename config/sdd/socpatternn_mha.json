@@ -1,7 +1,7 @@
 {
-    "base_config": "./config/111days/base_config.json",
+    "base_config": "./config/sdd/base_config.json",
 	
-	"exp_tag": "a",
+	"exp_tag": "",
 	"trainer": "socpatternn-mha",
 	"coord": "rel",
 
@@ -25,24 +25,24 @@
 		"update_lr": false,
 		"start": 0,
 		"patience": 100,
-		"warmup": true,
+		"warmup": false,
 		"warmup_epochs": 50,
 		"gradient_clip": 10,
 		"seed": 1
 	},
 	
 	"model_design": {
-		"dim": 3,
+		"dim": 2,
 		"scale": 1.0, 
 		"feat_enc_x": {
-			"in_size": 3,
+			"in_size": 2,
 			"hidden_size": [96],
 			"out_size": 96,
 			"dropout": 0.0,
 			"layer_norm": false
 		},
 		"encoder": {
-			"in_size": 320,
+			"in_size": 272,
 			"hidden_size": [96],
 			"out_size": 48,
 			"dropout": 0.0,
@@ -63,9 +63,9 @@
 			"layer_norm": false
 		},
 		"decoder": {
-			"in_size": 416,
+			"in_size": 368,
 			"hidden_size": [96],
-			"out_size": 6,
+			"out_size": 4,
 			"dropout": 0.0,
 			"layer_norm": false
 		},
@@ -84,7 +84,7 @@
                 "layer_norm": false
 			},
 			"dec_pat": {
-				"in_size": 141,
+				"in_size": 120,
                 "hidden_size": [96],
                 "out_size": -1,
                 "dropout": 0.0,
@@ -93,10 +93,9 @@
 		},
 		"interaction_net": {
 			"type": "mha",
-			"use_k_nearest": false,
-            "k_nearest": 8,
+            "k_nearest": 5,
 			"interaction_att": {
-                "in_size": 3,
+                "in_size": 2,
                 "hidden_size": 16,
                 "num_heads": 4, 
                 "dropout": 0.0,
@@ -105,7 +104,7 @@
 			"interaction_proj": {
                 "in_size": 64,
                 "hidden_size": [],
-                "out_size": 96, 
+                "out_size": 48, 
                 "dropout": 0.0,
                 "layer_norm": false
             }

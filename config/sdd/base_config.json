@@ -10,7 +10,7 @@
 		"max_agents": 21,
 		"hist_len": 8,
 		"fut_len": 12,
-		"pat_len": 5,
+		"pat_len": 8,
 		"step": 1,
 		"skip": 1
 	},

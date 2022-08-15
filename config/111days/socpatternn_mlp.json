@@ -25,7 +25,7 @@
 		"update_lr": false,
 		"start": 0,
 		"patience": 100,
-		"warmup": false,
+		"warmup": true,
 		"warmup_epochs": 50,
 		"gradient_clip": 10,
 		"seed": 1
