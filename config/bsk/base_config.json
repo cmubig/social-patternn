@@ -1,0 +1,53 @@
+{
+	"out_dir": "out",
+	"sub_dirs": ["ckpts", "best", "videos", "plots", "trajs"],
+
+	"log_mode": "info",
+	"log_file": "experiment.log",
+
+	"trajectory": {
+		"min_agents": 10,
+		"max_agents": 10,
+		"hist_len": 10,
+		"fut_len": 40,
+		"pat_len": 8,
+		"step": 1,
+		"skip": 1
+	},
+
+	"dataset": {
+		"name": "bsk_all",
+		"loader_type": "bsk",
+		"load_npy": false,
+		"npy_path": "./data/processed/",
+		"txt_path": "./data/raw",
+		"train_batch_size": 64,
+		"val_batch_size": 64,
+		"test_batch_size": 64,
+		"loader_num_workers": 1,
+		"delim": "\t",
+		"process": 1.0
+	},
+
+	"visualization": {
+		"plot_freq": 50,
+		"visualize": false,
+		"animation": false,
+		"enabled": true,
+		"freq": 10,
+		"use_limits": false,
+		"x_label": "x",
+		"x_lim": [-6.0, 6.0],
+		"y_label": "y",
+		"y_lim": [-6.0, 6.0],
+		"z_label": "z",
+		"z_lim": [-6.0, 6.0],
+		"color": [1.0, 0.0, 0.0],
+		"dpi": 300,
+		"diff": 0.0,
+		"background": "./data/assets/airport.png",
+		"center_label": "Airport",
+		"format": "png",
+		"lw": 1
+	}
+}
