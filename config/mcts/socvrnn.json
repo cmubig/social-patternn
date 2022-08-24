@@ -1,5 +1,5 @@
 {
-    "base_config": "./config/mcts/base_config.json",
+    "base_config": "./social-patternn/config/mcts/base_config.json",
 	
 	"exp_tag": "",
 	"trainer": "socvrnn",

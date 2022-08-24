@@ -16,6 +16,7 @@
 	},
 
 	"dataset": {
+		"preprocess": false,
 		"name": "111days",
 		"loader_type": "trajair",
 		"load_npy": true,

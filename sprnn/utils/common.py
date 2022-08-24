@@ -107,7 +107,7 @@ def compute_social_influences(
     """
     traj_len, batch_size, dim = traj.shape
     displacements = torch.zeros((traj_len, batch_size, max_agents, dim))
-    
+
     for start, end in seq_start_end:
         num_agents = end - start
         

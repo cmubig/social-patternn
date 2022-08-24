@@ -5,6 +5,7 @@
 #           trajectory prediction with a vanilla module for "social" encoding. 
 # ------------------------------------------------------------------------------
 import os
+from time import time
 import torch
 import torch.optim as optim
 
@@ -223,6 +224,19 @@ class SocialVRNNTrainer(BaseTrainer):
             pbar.update(1)
                                     
         return metrics
+    
+    @torch.no_grad()
+    def eval_sample(self, hist_abs):
+        # import pdb; pdb.set_trace()
+        timesteps, batchsize, dim = hist_abs.shape
+        hist_abs = hist_abs.to(self.device).reshape(timesteps, 1, 2 * dim)
+        
+        kld, nll, h = self.model.evaluate(hist_abs)
+                        
+        # run inference to predict the trajectory's future steps
+        pred = self.model.inference(self.fut_len, h).view(self.fut_len, -1, dim)
+        
+        return pred.cpu()
         
     def setup(self) -> None:
         """ Sets the trainer as follows:

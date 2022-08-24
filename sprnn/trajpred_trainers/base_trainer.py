@@ -52,10 +52,12 @@ class BaseTrainer:
         self.save_config(config, 'config.json')
         
         # loads or generates dataset using config specifications
-        self.train_data, self.val_data, self.test_data = load_data(
-            self.config.DATASET, self.config.TRAJECTORY)
-        train_len, val_len = len(self.train_data), len(self.val_data)
-        test_len = len(self.test_data)
+        train_len = val_len = test_len = 0
+        if self.config.DATASET.preprocess:
+            self.train_data, self.val_data, self.test_data = load_data(
+                self.config.DATASET, self.config.TRAJECTORY)
+            train_len, val_len = len(self.train_data), len(self.val_data)
+            test_len = len(self.test_data)
         self.logger.info(
             f"Dataset size - train: {train_len} val: {val_len} test: {test_len}")
         
@@ -365,7 +367,7 @@ class BaseTrainer:
         -------
         filename[str]: checkpoint filename. 
         """
-        self.logger.debug(f"{self.name} loading checkpoint from: {filename}")
+        self.logger.info(f"{self.name} loading checkpoint from: {filename}")
         model = torch.load(filename, map_location=torch.device('cpu'))
         self.model.load_state_dict(model['model'])
         self.optimizer.load_state_dict(model['optimizer'])

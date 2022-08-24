@@ -235,6 +235,17 @@ class VRNNTrainer(BaseTrainer):
                     f"epoch-{epoch+1}_test-{i}")
                         
         return metrics
+    
+    @torch.no_grad()
+    def eval_sample(self, hist_abs):
+        
+        hist_abs = hist_abs.to(self.device)
+        
+        kld, nll, h = self.model.evaluate(hist_abs)
+                        
+        # run inference to predict the trajectory's future steps
+        pred = self.model.inference(self.fut_len, h)
+        return pred.cpu()
         
     def setup(self) -> None:
         """ Sets the trainer as follows:
