@@ -14,7 +14,7 @@
 		"fut_len": 50,
 		"pat_len": 8,
 		"step": 2,
-		"skip": 5
+		"skip": 10
 	},
 
 	"dataset": {
