@@ -261,7 +261,33 @@ class SocialPatteRNNTrainer(BaseTrainer):
                     f"epoch-{epoch+1}_test-{i}")
                                     
         return metrics
+    
+    @torch.no_grad()
+    def eval_sample(self, hist_abs):
+        # import pdb; pdb.set_trace()
+        # shape = (hist_len, num_agents, dim)
+        H, N, D = hist_abs.shape
+        hist_abs = hist_abs.to(self.device)
+        patterns = torch.zeros((H, N, self.pat_len-1, D)).to(self.device)
+        pat = hist_abs[:self.pat_len]
+        patterns[0] = torch.transpose(pat[1:] - pat[:-1], 0, 1).to(self.device)
         
+        seq_start_end = torch.LongTensor([[0, 2]])
+        
+        soc = mutils.compute_social_influences(
+            hist_abs[0].unsqueeze(0).detach().cpu(), 
+            pat[-1].unsqueeze(0).detach().cpu(), 
+            seq_start_end, self.k_nearest, self.flatten).to(self.device)
+    
+        _, _, _, h, pat, soc = self.model.evaluate(
+            hist_abs, hist_abs, patterns, soc, seq_start_end)
+                        
+        # run inference to predict the trajectory's future steps
+        pred = self.model.inference(
+            hist_abs[-1], self.fut_len, h, pat, soc, seq_start_end, self.coord)
+        
+        return pred.cpu()
+    
     def setup(self) -> None:
         """ Sets the trainer as follows:
             * model: TrajPredVRNN
