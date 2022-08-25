@@ -68,10 +68,10 @@ class VRNNTrainer(BaseTrainer):
             
             if self.coord == "rel":
                 hist_rel = hist_rel[:, :, :self.dim]
-                kld, nll = self.model(hist_rel, )
+                kld, nll = self.model(hist_rel, context=context)
             else: # abs coords
                 hist_abs = hist_abs[:, :, :self.dim]
-                kld, nll = self.model(hist_abs, )
+                kld, nll = self.model(hist_abs, context=context)
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll)
             batch_loss += loss['Loss']
@@ -127,9 +127,9 @@ class VRNNTrainer(BaseTrainer):
             
             # eval burn-in process 
             if self.coord == "rel":
-                kld, nll, h_H = self.model.evaluate(hist_rel, )
+                kld, nll, h_H = self.model.evaluate(hist_rel, context=context)
             else:
-                kld, nll, h_H = self.model.evaluate(hist_abs, )
+                kld, nll, h_H = self.model.evaluate(hist_abs, context=context)
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll)
                     
@@ -140,7 +140,7 @@ class VRNNTrainer(BaseTrainer):
                 h = h_H.clone()
                 
                 # run inference to predict the trajectory's future steps
-                pred = self.model.inference(self.fut_len, h, )
+                pred = self.model.inference(self.fut_len, h, context=context)
                 
                 if self.coord == "rel":    
                     # convert the prediction to absolute coords
@@ -197,9 +197,9 @@ class VRNNTrainer(BaseTrainer):
             
             # eval burn-in process 
             if self.coord == "rel":
-                kld, nll, h_H = self.model.evaluate(hist_rel, )
+                kld, nll, h_H = self.model.evaluate(hist_rel, context=context)
             else:
-                kld, nll, h_H = self.model.evaluate(hist_abs, )
+                kld, nll, h_H = self.model.evaluate(hist_abs, context=context)
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll)
                     
@@ -210,7 +210,7 @@ class VRNNTrainer(BaseTrainer):
                 h = h_H.clone()
                 
                 # run inference to predict the trajectory's future steps
-                pred = self.model.inference(self.fut_len, h)
+                pred = self.model.inference(self.fut_len, h, context=context)
                 
                 if self.coord == "rel":    
                     # convert the prediction to absolute coords

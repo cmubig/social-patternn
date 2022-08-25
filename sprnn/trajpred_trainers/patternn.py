@@ -72,10 +72,10 @@ class PatteRNNTrainer(BaseTrainer):
             
             if self.coord == "rel":
                 hist_rel = hist_rel[:, :, :self.dim]
-                kld, nll, mse = self.model(hist_rel, pat_rel, )
+                kld, nll, mse = self.model(hist_rel, pat_rel, context=context)
             else:
                 hist_abs = hist_abs[:, :, :self.dim]
-                kld, nll, mse = self.model(hist_abs, pat_rel, )
+                kld, nll, mse = self.model(hist_abs, pat_rel, context=context)
                 
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             batch_loss += loss['Loss']
@@ -134,10 +134,10 @@ class PatteRNNTrainer(BaseTrainer):
             # eval burn-in process 
             if self.coord == "rel":
                 kld, nll, mse, h_H, pat_H = self.model.evaluate(
-                    hist_rel, pat_rel, )
+                    hist_rel, pat_rel, context=context)
             else:
                 kld, nll, mse, h_H, pat_H = self.model.evaluate(
-                    hist_abs, pat_rel, )
+                    hist_abs, pat_rel, context=context)
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             
@@ -148,7 +148,7 @@ class PatteRNNTrainer(BaseTrainer):
                 h, pat = h_H.clone(), pat_H.clone()
 
                 # run inference to predict the trajectory's future steps
-                pred = self.model.inference(self.fut_len, h, pat, )
+                pred = self.model.inference(self.fut_len, h, pat, context=context)
                 
                 if self.coord == "rel":
                     # convert the prediction to absolute coords
@@ -208,10 +208,10 @@ class PatteRNNTrainer(BaseTrainer):
             # eval burn-in process 
             if self.coord == "rel":
                 kld, nll, mse, h_H, pat_H = self.model.evaluate(
-                    hist_rel, pat_rel, )
+                    hist_rel, pat_rel, context=context)
             else:
                 kld, nll, mse, h_H, pat_H = self.model.evaluate(
-                    hist_abs, pat_rel, )
+                    hist_abs, pat_rel, context=context)
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             
@@ -222,7 +222,7 @@ class PatteRNNTrainer(BaseTrainer):
                 h, pat = h_H.clone(), pat_H.clone()
 
                 # run inference to predict the trajectory's future steps
-                pred = self.model.inference(self.fut_len, h, pat, )
+                pred = self.model.inference(self.fut_len, h, pat, context=context)
                 
                 if self.coord == "rel":
                     # convert the prediction to absolute coords

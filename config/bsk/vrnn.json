@@ -41,14 +41,14 @@
 			"layer_norm": false
 		},
 		"encoder": {
-			"in_size": 192,
+			"in_size": 195,
 			"hidden_size": [96],
 			"out_size": 48,
 			"dropout": 0.0,
 			"layer_norm": false
 		},
 		"prior": {
-			"in_size": 96,
+			"in_size": 99,
 			"hidden_size": [96],
 			"out_size": 48,
 			"dropout": 0.0,
@@ -62,7 +62,7 @@
 			"layer_norm": false
 		},
 		"decoder": {
-			"in_size": 192,
+			"in_size": 195,
 			"hidden_size": [96],
 			"out_size": 4,
 			"dropout": 0.0,

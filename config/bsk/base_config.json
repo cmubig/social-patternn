@@ -16,6 +16,7 @@
 	},
 
 	"dataset": {
+		"preprocess": true,
 		"name": "bsk_all",
 		"loader_type": "bsk",
 		"load_npy": false,

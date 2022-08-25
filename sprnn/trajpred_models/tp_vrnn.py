@@ -103,33 +103,32 @@ class VRNN(nn.Module):
         c_t = kwargs.get('context')
 
         for t in range(1, timesteps):          
-            # x - extract features at step t
+            # extract location features
             x_t = hist[t]
             f_x_t = self.f_x(x_t) 
             
-            # x - encode step t (encoder)
+            # cvae - encoder
             x_enc_embed = cat(
-                [f_x_t, c_t, h[-1]], 1) if not c_t is None else cat([f_x_t, h[-1]], 1)
+                [f_x_t, h[-1]], 1) if c_t is None else cat([f_x_t, c_t, h[-1]], 1)
             x_enc_t = self.enc(x_enc_embed)
             x_enc_mean_t = x_enc_t[:, :self.z_dim]
             x_enc_logvar_t = x_enc_t[:, self.z_dim:]
 
-            # x - encode step t (prior)
-            x_prior_embed = cat(
-                [c_t, h[-1]], 1) if not c_t is None else cat([h[-1]], 1)
+            # cvae - prior
+            x_prior_embed = h[-1] if c_t is None else cat([c_t, h[-1]], 1)
             x_prior_t = self.prior(x_prior_embed)
             x_prior_mean_t = x_prior_t[:, :self.z_dim]
             x_prior_logvar_t = x_prior_t[:, self.z_dim:]
 
-            # z - sample from latent space 
+            # cvae - sample latent space
             z_t = self._reparameterize(x_enc_mean_t, x_enc_logvar_t)
             
-            # z - extract feature at step t
+            # cvae - extract features from latent space
             f_z_t = self.f_z(z_t)
 
-            # z - decode step t to generate x_t
+            # cvae - decoder
             x_dec_embed = cat(
-                [f_z_t, c_t, h[-1]], 1) if not c_t is None else cat([f_z_t, h[-1]], 1)
+                [f_z_t, h[-1]], 1) if c_t is None else cat([f_z_t, c_t, h[-1]], 1)
             x_dec_t = self.dec(x_dec_embed)
             x_dec_mean_t = x_dec_t[:, :self.dim]
             x_dec_logvar_t = x_dec_t[:, self.dim:]
@@ -169,38 +168,37 @@ class VRNN(nn.Module):
         c_t = kwargs.get('context')
         
         for t in range(1, timesteps):
-            # x - extract features at step t
+            # extract location features
             x_t = hist[t]
             f_x_t = self.f_x(x_t) 
             
-            # x - encode step t (encoder)
+            # cvae - encoder
             x_enc_embed = cat(
-                [f_x_t, c_t, h[-1]], 1) if not c_t is None else cat([f_x_t, h[-1]], 1)
+                [f_x_t, h[-1]], 1) if c_t is None else cat([f_x_t, c_t, h[-1]], 1)
             x_enc_t = self.enc(x_enc_embed)
             x_enc_mean_t = x_enc_t[:, :self.z_dim]
             x_enc_logvar_t = x_enc_t[:, self.z_dim:]
 
-            # x - encode step t (prior)
-            x_prior_embed = cat(
-                [c_t, h[-1]], 1) if not c_t is None else cat([h[-1]], 1)
+            # cvae - prior
+            x_prior_embed = h[-1] if c_t is None else cat([c_t, h[-1]], 1)
             x_prior_t = self.prior(x_prior_embed)
             x_prior_mean_t = x_prior_t[:, :self.z_dim]
             x_prior_logvar_t = x_prior_t[:, self.z_dim:]
 
-            # z - sample from latent space 
+            # sample from latent space 
             z_t = self._reparameterize(x_enc_mean_t, x_enc_logvar_t)
             
-            # z - extract feature at step t
+            # extract features from latent 
             f_z_t = self.f_z(z_t)
 
-            # z - decode step t to generate x_t
+            # cvae - decoder
             x_dec_embed = cat(
-                [f_z_t, c_t, h[-1]], 1) if not c_t is None else cat([f_z_t, h[-1]], 1)
+                [f_z_t, h[-1]], 1) if c_t is None else cat([f_z_t, c_t, h[-1]], 1)
             x_dec_t = self.dec(x_dec_embed)
             x_dec_mean_t = x_dec_t[:, :self.dim]
             x_dec_logvar_t = x_dec_t[:, self.dim:]
 
-            # recurrence
+            # rnn
             h_embedding = cat([f_x_t, f_z_t], 1).unsqueeze(0)
             _, h = self.rnn(h_embedding, h)
 
@@ -228,35 +226,34 @@ class VRNN(nn.Module):
         _, batch_size, _ = h.shape
         
         c_t = kwargs.get('context')
-        
         samples = zeros(fut_len, batch_size, self.dim).to(self.device)
+        
         for t in range(fut_len):
-            # x - encode hidden state to generate latent space (prior)
-            x_prior_embed = cat(
-                [c_t, h[-1]], 1) if not c_t is None else cat([h[-1]], 1)
+            # cvae - prior
+            x_prior_embed = h[-1] if c_t is None else cat([c_t, h[-1]], 1)
             x_prior_t = self.prior(x_prior_embed)
             x_prior_mean_t = x_prior_t[:, :self.z_dim]
             x_prior_logvar_t = x_prior_t[:, self.z_dim:]
 
-            # z - sample from latent space 
+            # sample from latent space 
             z_t = self._reparameterize(x_prior_mean_t, x_prior_logvar_t)
             
-            # z - extract feature at step t
+            # extract features from latent space
             f_z_t = self.f_z(z_t)
 
-            # z - decode step t to generate x_t
+            # cvae - decoder
             x_dec_embed = cat(
-                [f_z_t, c_t, h[-1]], 1) if not c_t is None else cat([f_z_t, h[-1]], 1)
+                [f_z_t, h[-1]], 1) if c_t is None else cat([f_z_t, c_t, h[-1]], 1)
             x_dec_t = self.dec(x_dec_embed)
             x_dec_mean_t = x_dec_t[:, :self.dim]
             
             # (N, D)
             samples[t] = x_dec_mean_t.data
 
-            # x - extract features from decoded latent space (~ 'x')
+            # extract location features
             f_x_t = self.f_x(x_dec_mean_t)
 
-            # recurrence
+            # rnn
             h_embedding = cat([f_x_t, f_z_t], 1).unsqueeze(0)
             _, h = self.rnn(h_embedding, h)
 
