@@ -275,7 +275,7 @@ class SocialPatteRNNTrainer(BaseTrainer):
         patterns[0] = torch.transpose(pat[1:] - pat[:-1], 0, 1).to(self.device)
         
         seq_start_end = torch.LongTensor([[0, 2]])
-        
+  
         soc = mutils.compute_social_influences(
             hist_abs[0].unsqueeze(0).detach().cpu(), 
             pat[-1].unsqueeze(0).detach().cpu(), 
@@ -289,7 +289,7 @@ class SocialPatteRNNTrainer(BaseTrainer):
             hist_abs[-1], self.fut_len, h, pat, soc, seq_start_end, self.coord)
         
         return pred.cpu()
-        
+    
     def setup(self) -> None:
         """ Sets the trainer as follows:
             * model: TrajPredVRNN
