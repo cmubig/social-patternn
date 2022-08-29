@@ -21,7 +21,7 @@
 		"num_iter": -1,
 		"eval_num_iter": -1,
 		"test_num_iter": -1,
-		"lr": 1e-3,
+		"lr": 1e-4,
 		"update_lr": false,
 		"start": 0,
 		"patience": 100,
@@ -42,14 +42,14 @@
 			"layer_norm": false
 		},
 		"encoder": {
-			"in_size": 192,
+			"in_size": 195,
 			"hidden_size": [96],
 			"out_size": 48,
 			"dropout": 0.0,
 			"layer_norm": false
 		},
 		"prior": {
-			"in_size": 96,
+			"in_size": 99,
 			"hidden_size": [96],
 			"out_size": 48,
 			"dropout": 0.0,
@@ -63,7 +63,7 @@
 			"layer_norm": false
 		},
 		"decoder": {
-			"in_size": 288,
+			"in_size": 291,
 			"hidden_size": [96],
 			"out_size": 4,
 			"dropout": 0.0,
@@ -84,7 +84,7 @@
                 "layer_norm": false
 			},
 			"dec_pat": {
-				"in_size": 110,
+				"in_size": 113,
                 "hidden_size": [96],
                 "out_size": -1,
                 "dropout": 0.0,
