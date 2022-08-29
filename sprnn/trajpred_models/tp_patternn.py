@@ -46,7 +46,8 @@ class PatteRNN(VRNN):
         logger.info(f"{self.name} architecture:\n{self}")
 
     def forward(
-        self, hist: tensor, pat: tensor, **kwargs) -> Tuple[tensor, tensor, tensor]:
+        self, hist: tensor, pat: tensor, **kwargs
+    ) -> Tuple[tensor, tensor, tensor]:
         """ Forward propagation of observed trajectories.
         
         Inputs:
@@ -66,7 +67,6 @@ class PatteRNN(VRNN):
         KLD = zeros(1).to(self.device)
         NLL = zeros(1).to(self.device)
         MSE = zeros(1).to(self.device)
-        
         h = Variable(
             zeros(self.num_layers, batch_size, self.rnn_dim)).to(self.device)
         c_t = kwargs.get('context')
@@ -79,7 +79,7 @@ class PatteRNN(VRNN):
             # patternnet - predict future pattern 
             p_tm1 = pat[t-1].flatten(start_dim=1)
             p_embed = cat(
-                [p_tm1, c_t, h[-1]], 1) if not c_t is None else cat([p_tm1, h[-1]], 1)
+                [p_tm1, h[-1]], 1) if c_t is None else cat([p_tm1, c_t, h[-1]], 1)
             p_t_dec = self.dec_pat(p_embed).view(-1, self.pat_len, self.dim)
             
             # patternnet - extract pattern features 
@@ -88,14 +88,13 @@ class PatteRNN(VRNN):
             
             # c-vae - encoder
             x_enc_embed = cat(
-                [f_x_t, c_t, h[-1]], 1) if not c_t is None else cat([f_x_t, h[-1]], 1)
+                [f_x_t, h[-1]], 1) if c_t is None else cat([f_x_t, c_t, h[-1]], 1)
             x_enc_t = self.enc(x_enc_embed)
             x_enc_mean_t = x_enc_t[:, :self.z_dim]
             x_enc_logvar_t = x_enc_t[:, self.z_dim:]
 
-            # x - encode step t (prior)
-            x_prior_embed = cat(
-                [c_t, h[-1]], 1) if not c_t is None else cat([h[-1]], 1)
+            # cvae - prior
+            x_prior_embed = h[-1] if c_t is None else cat([c_t, h[-1]], 1)
             x_prior_t = self.prior(x_prior_embed)
             x_prior_mean_t = x_prior_t[:, :self.z_dim]
             x_prior_logvar_t = x_prior_t[:, self.z_dim:]
@@ -103,12 +102,13 @@ class PatteRNN(VRNN):
             # cvae - sample latent space
             z_t = self._reparameterize(x_enc_mean_t, x_enc_logvar_t)
             
-            # extract latent space features
+            # cvae - extract features from latent space
             f_z_t = self.f_z(z_t)
 
             # cvae - decoder
             x_dec_embed = cat(
-                [f_z_t, f_p_t, c_t, h[-1]], 1) if not c_t is None else cat([f_z_t, f_p_t, h[-1]], 1)
+                [f_z_t, f_p_t, h[-1]], 1) if c_t is None else cat(
+                    [f_z_t, f_p_t, c_t, h[-1]], 1)
             x_dec_t = self.dec(x_dec_embed)
             x_dec_mean_t = x_dec_t[:, :self.dim]
             x_dec_logvar_t = x_dec_t[:, self.dim:]
@@ -160,7 +160,7 @@ class PatteRNN(VRNN):
             
             # patternnet - predict future pattern 
             p_embed = cat(
-                [p_tm1, c_t, h[-1]], 1) if not c_t is None else cat([p_tm1, h[-1]], 1)
+                [p_tm1, h[-1]], 1) if c_t is None else cat([p_tm1, c_t, h[-1]], 1)
             p_t_dec = self.dec_pat(p_embed)
             
             # patternnet - extract pattern features
@@ -173,14 +173,13 @@ class PatteRNN(VRNN):
             
             # c-vae - encoder
             x_enc_embed = cat(
-                [f_x_t, c_t, h[-1]], 1) if not c_t is None else cat([f_x_t, h[-1]], 1)
+                [f_x_t, h[-1]], 1) if c_t is None else cat([f_x_t, c_t, h[-1]], 1)
             x_enc_t = self.enc(x_enc_embed)
             x_enc_mean_t = x_enc_t[:, :self.z_dim]
             x_enc_logvar_t = x_enc_t[:, self.z_dim:]
 
             # c-vae - prior
-            x_prior_embed = cat(
-                [c_t, h[-1]], 1) if not c_t is None else cat([h[-1]], 1)
+            x_prior_embed = h[-1] if c_t is None else cat([c_t, h[-1]], 1)
             x_prior_t = self.prior(x_prior_embed)
             x_prior_mean_t = x_prior_t[:, :self.z_dim]
             x_prior_logvar_t = x_prior_t[:, self.z_dim:]
@@ -193,7 +192,8 @@ class PatteRNN(VRNN):
 
             # cvae - decoder
             x_dec_embed = cat(
-                [f_z_t, f_p_t, c_t, h[-1]], 1) if not c_t is None else cat([f_z_t, f_p_t, h[-1]], 1)
+                [f_z_t, f_p_t, h[-1]], 1) if c_t is None else cat(
+                    [f_z_t, f_p_t, c_t, h[-1]], 1)
             x_dec_t = self.dec(x_dec_embed)
             x_dec_mean_t = x_dec_t[:, :self.dim]
             x_dec_logvar_t = x_dec_t[:, self.dim:]
@@ -234,7 +234,7 @@ class PatteRNN(VRNN):
         for t in range(fut_len):
             # patternnet - predict future pattern 
             p_embed = cat(
-                [p_tm1, c_t, h[-1]], 1) if not c_t is None else cat([p_tm1, h[-1]], 1)
+                [p_tm1, h[-1]], 1) if c_t is None else cat([p_tm1, c_t, h[-1]], 1)
             p_t_dec = self.dec_pat(p_embed)
             
             # patternnet - set up variables for the next step 
@@ -244,8 +244,7 @@ class PatteRNN(VRNN):
             f_p_t = self.f_pat(p_tm1)
             
             # cvae - prior
-            x_prior_embed = cat(
-                [c_t, h[-1]], 1) if not c_t is None else cat([h[-1]], 1)
+            x_prior_embed = h[-1] if c_t is None else cat([c_t, h[-1]], 1)
             x_prior_t = self.prior(x_prior_embed)
             x_prior_mean_t = x_prior_t[:, :self.z_dim]
             x_prior_logvar_t = x_prior_t[:, self.z_dim:]
@@ -258,7 +257,8 @@ class PatteRNN(VRNN):
 
             # cvae - decoder 
             x_dec_embed = cat(
-                [f_z_t, f_p_t, c_t, h[-1]], 1) if not c_t is None else cat([f_z_t, f_p_t, h[-1]], 1)
+                [f_z_t, f_p_t, h[-1]], 1) if c_t is None else cat(
+                    [f_z_t, f_p_t, c_t, h[-1]], 1)
             x_dec_t = self.dec(x_dec_embed)
             x_dec_mean_t = x_dec_t[:, :self.dim]
             
