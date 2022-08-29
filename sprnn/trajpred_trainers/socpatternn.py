@@ -61,7 +61,7 @@ class SocialPatteRNNTrainer(BaseTrainer):
             # hist_abs, hist_rel have shapes (hist_len, num_agents, dim)
             # fut_abs, fut_rel have shapes(fut_len, num_agents, dim)
             batch = [tensor.to(self.device) for tensor in batch]   
-            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, weather, 
+            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, context, 
              seq_start_end) = batch
             
             batch_size = hist_rel.shape[1]
@@ -75,9 +75,11 @@ class SocialPatteRNNTrainer(BaseTrainer):
             
             if self.coord == "rel":
                 hist_rel = hist_rel[:, :, :self.dim]
-                kld, nll, mse = self.model(hist_rel, pat_rel, soc)
+                kld, nll, mse = self.model(
+                    hist_rel, pat_rel, soc, context=context)
             else:
-                kld, nll, mse = self.model(hist_abs, pat_rel, soc)
+                kld, nll, mse = self.model(
+                    hist_abs, pat_rel, soc, context=context)
                 
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             batch_loss += loss['Loss']
@@ -109,9 +111,7 @@ class SocialPatteRNNTrainer(BaseTrainer):
         --------
         loss[dict]: a dictionary with all of losses computed during training. 
         """  
-        self.model.eval()
-        num_samples = kwargs.get('num_samples') if kwargs.get('num_samples') else 1
-        
+        self.model.eval()        
         self.eval_losses.reset()
         self.eval_metrics.reset()
         
@@ -122,7 +122,7 @@ class SocialPatteRNNTrainer(BaseTrainer):
                 break
            
             batch = [tensor.to(self.device) for tensor in batch]
-            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, weather, 
+            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, context, 
              seq_start_end) = batch
             
             batch_size = hist_abs.shape[1]
@@ -141,22 +141,25 @@ class SocialPatteRNNTrainer(BaseTrainer):
             # eval burn-in process 
             if self.coord == "rel":
                 kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
-                    hist_rel, hist_abs, pat_rel, soc, seq_start_end)
+                    hist_rel, hist_abs, pat_rel, soc, seq_start_end, 
+                    context=context)
             else: 
                 kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
-                    hist_abs, hist_abs, pat_rel, soc, seq_start_end)
+                    hist_abs, hist_abs, pat_rel, soc, seq_start_end, 
+                    context=context)
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             
             # generate future steps
             pred_list = []
             x_H = hist_abs[-1]
-            for _ in range(num_samples):
+            for _ in range(self.num_samples):
                 h, pat, soc = h_H.clone(), pat_H.clone(), soc_H.clone()
                 
                 # run inference to predict the trajectory's future steps
                 pred = self.model.inference(
-                    x_H, self.fut_len, h, pat, soc, seq_start_end, self.coord)
+                    x_H, self.fut_len, h, pat, soc, seq_start_end, self.coord,
+                    context=context)
                 
                 if self.coord == "rel":
                     # convert the prediction to absolute coords
@@ -190,8 +193,6 @@ class SocialPatteRNNTrainer(BaseTrainer):
         loss[dict]: a dictionary with all of losses computed during training. 
         """  
         self.model.eval()
-        num_samples = kwargs.get('num_samples') if kwargs.get('num_samples') else 1
-        
         self.eval_losses.reset()
         self.eval_metrics.reset()
         
@@ -202,7 +203,7 @@ class SocialPatteRNNTrainer(BaseTrainer):
                 break
            
             batch = [tensor.to(self.device) for tensor in batch]
-            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, weather, 
+            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, context, 
              seq_start_end) = batch
             
             batch_size = hist_abs.shape[1]
@@ -221,22 +222,25 @@ class SocialPatteRNNTrainer(BaseTrainer):
             # eval burn-in process 
             if self.coord == "rel":
                 kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
-                    hist_rel, hist_abs, pat_rel, soc, seq_start_end)
+                    hist_rel, hist_abs, pat_rel, soc, seq_start_end,
+                    context=context)
             else: 
                 kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
-                    hist_abs, hist_abs, pat_rel, soc, seq_start_end)
+                    hist_abs, hist_abs, pat_rel, soc, seq_start_end, 
+                    context=context)
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             
             # generate future steps
             pred_list = []
             x_H = hist_abs[-1]
-            for _ in range(num_samples):
+            for _ in range(self.num_samples):
                 h, pat, soc = h_H.clone(), pat_H.clone(), soc_H.clone()
                 
                 # run inference to predict the trajectory's future steps
                 pred = self.model.inference(
-                    x_H, self.fut_len, h, pat, soc, seq_start_end, self.coord)
+                    x_H, self.fut_len, h, pat, soc, seq_start_end, self.coord, 
+                    context=context)
                 
                 if self.coord == "rel":
                     # convert the prediction to absolute coords

@@ -1,5 +1,5 @@
 {
-    "base_config": "./config/111days/base_config.json",
+    "base_config": "./config/bsk/base_config.json",
 	
 	"exp_tag": "",
 	"trainer": "socpatternn-mlp",
@@ -17,11 +17,11 @@
 		"ckpt_freq": 100,
 		"batch_size": 1,
 		"eval_batch_size": 8,
-		"num_epoch": 1000,
+		"num_epoch": 500,
 		"num_iter": -1,
 		"eval_num_iter": -1,
 		"test_num_iter": -1,
-		"lr": 1e-3,
+		"lr": 1e-4,
 		"update_lr": false,
 		"start": 0,
 		"patience": 100,
@@ -32,24 +32,24 @@
 	},
 	
 	"model_design": {
-		"dim": 3,
+		"dim": 2,
 		"scale": 1.0, 
 		"feat_enc_x": {
-			"in_size": 3,
+			"in_size": 2,
 			"hidden_size": [96],
 			"out_size": 96,
 			"dropout": 0.0,
 			"layer_norm": false
 		},
 		"encoder": {
-			"in_size": 288,
+			"in_size": 291,
 			"hidden_size": [96],
 			"out_size": 48,
 			"dropout": 0.0,
 			"layer_norm": false
 		},
 		"prior": {
-			"in_size": 96,
+			"in_size": 99,
 			"hidden_size": [96],
 			"out_size": 48,
 			"dropout": 0.0,
@@ -63,9 +63,9 @@
 			"layer_norm": false
 		},
 		"decoder": {
-			"in_size": 384,
+			"in_size": 387,
 			"hidden_size": [96],
-			"out_size": 6,
+			"out_size": 4,
 			"dropout": 0.0,
 			"layer_norm": false
 		},
@@ -84,7 +84,7 @@
                 "layer_norm": false
 			},
 			"dec_pat": {
-				"in_size": 141,
+				"in_size": 135,
                 "hidden_size": [96],
                 "out_size": -1,
                 "dropout": 0.0,
@@ -94,9 +94,9 @@
 		"interaction_net": {
 			"type": "mlp",
 			"use_k_nearest": false,
-            "k_nearest": 8,
+            "k_nearest": 11,
             "feat_soc": {
-                "in_size": 24,
+                "in_size": 22,
                 "hidden_size": [96],
                 "out_size": 96,
                 "dropout": 0.0,

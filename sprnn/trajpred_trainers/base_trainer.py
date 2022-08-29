@@ -177,7 +177,7 @@ class BaseTrainer:
             if do_eval:
                 epoch_str += "\n\teval: "
                 self.model.eval()
-                measures = self.eval_epoch(ep, num_samples=self.num_samples)
+                measures = self.eval_epoch(epoch=ep)
                 
                 if self.update_lr and ep > int(0.40 * self.num_epoch):
                     self.lr_scheduler.step(measures[self.main_metric])
@@ -247,11 +247,9 @@ class BaseTrainer:
             epoch_str = f"Epoch[{epoch}/{self.num_epoch}] "
             
             if do_eval:
-                measures = self.eval_epoch(
-                    epoch=epoch, num_samples=self.num_samples)
+                measures = self.eval_epoch(epoch=epoch)
             else:
-                measures = self.test_epoch(
-                    epoch=epoch, num_samples=self.num_samples)
+                measures = self.test_epoch(epoch=epoch)
                         
             for k, v in measures.items():
                 assert not math.isnan(v), f"{k} got nan at epoch: {epoch}"

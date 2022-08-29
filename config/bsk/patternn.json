@@ -21,7 +21,7 @@
 		"num_iter": -1,
 		"eval_num_iter": -1,
 		"test_num_iter": -1,
-		"lr": 1e-3,
+		"lr": 1e-4,
 		"update_lr": false,
 		"start": 0,
 		"patience": 100,

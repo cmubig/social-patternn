@@ -108,8 +108,6 @@ class PatteRNNTrainer(BaseTrainer):
         loss[dict]: a dictionary with all of losses computed during training. 
         """  
         self.model.eval()
-        num_samples = kwargs.get('num_samples') if kwargs.get('num_samples') else 1
-        
         self.eval_losses.reset()
         self.eval_metrics.reset()
         
@@ -144,7 +142,7 @@ class PatteRNNTrainer(BaseTrainer):
             # generate future steps
             pred_list = []
             x_H = hist_abs[-1]
-            for _ in range(num_samples):
+            for _ in range(self.num_samples):
                 h, pat = h_H.clone(), pat_H.clone()
 
                 # run inference to predict the trajectory's future steps
@@ -182,8 +180,6 @@ class PatteRNNTrainer(BaseTrainer):
         loss[dict]: a dictionary with all of losses computed during training. 
         """  
         self.model.eval()
-        num_samples = kwargs.get('num_samples') if kwargs.get('num_samples') else 1
-        
         self.eval_losses.reset()
         self.eval_metrics.reset()
         
@@ -218,7 +214,7 @@ class PatteRNNTrainer(BaseTrainer):
             # generate future steps
             pred_list = []
             x_H = hist_abs[-1]
-            for _ in range(num_samples):
+            for _ in range(self.num_samples):
                 h, pat = h_H.clone(), pat_H.clone()
 
                 # run inference to predict the trajectory's future steps
