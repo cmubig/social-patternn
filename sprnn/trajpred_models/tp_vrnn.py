@@ -95,25 +95,29 @@ class VRNN(nn.Module):
         h[tensor(num_rnn_layers, batch_size, r)]: tensor
         """
         timesteps, batch_size, _ = hist.shape
-      
+
         KLD = zeros(1).to(self.device)
         NLL = zeros(1).to(self.device)
         h = Variable(zeros(
             self.num_layers, batch_size, self.rnn_dim)).to(self.device)
+        c_t = kwargs.get('context')
 
-        for t in range(1, timesteps):
+        for t in range(1, timesteps):          
             # x - extract features at step t
             x_t = hist[t]
             f_x_t = self.f_x(x_t) 
             
             # x - encode step t (encoder)
-            x_enc_embedding = cat([f_x_t, h[-1]], 1)
-            x_enc_t = self.enc(x_enc_embedding)
+            x_enc_embed = cat(
+                [f_x_t, c_t, h[-1]], 1) if not c_t is None else cat([f_x_t, h[-1]], 1)
+            x_enc_t = self.enc(x_enc_embed)
             x_enc_mean_t = x_enc_t[:, :self.z_dim]
             x_enc_logvar_t = x_enc_t[:, self.z_dim:]
 
             # x - encode step t (prior)
-            x_prior_t = self.prior(h[-1])
+            x_prior_embed = cat(
+                [c_t, h[-1]], 1) if not c_t is None else cat([h[-1]], 1)
+            x_prior_t = self.prior(x_prior_embed)
             x_prior_mean_t = x_prior_t[:, :self.z_dim]
             x_prior_logvar_t = x_prior_t[:, self.z_dim:]
 
@@ -124,8 +128,9 @@ class VRNN(nn.Module):
             f_z_t = self.f_z(z_t)
 
             # z - decode step t to generate x_t
-            x_dec_embedding = cat([f_z_t, h[-1]], 1)
-            x_dec_t = self.dec(x_dec_embedding)
+            x_dec_embed = cat(
+                [f_z_t, c_t, h[-1]], 1) if not c_t is None else cat([f_z_t, h[-1]], 1)
+            x_dec_t = self.dec(x_dec_embed)
             x_dec_mean_t = x_dec_t[:, :self.dim]
             x_dec_logvar_t = x_dec_t[:, self.dim:]
 
@@ -161,20 +166,24 @@ class VRNN(nn.Module):
         NLL = zeros(1).to(self.device)
         h = Variable(zeros(
             self.num_layers, batch_size, self.rnn_dim)).to(self.device)
-    
+        c_t = kwargs.get('context')
+        
         for t in range(1, timesteps):
             # x - extract features at step t
             x_t = hist[t]
             f_x_t = self.f_x(x_t) 
             
             # x - encode step t (encoder)
-            x_enc_embedding = cat([f_x_t, h[-1]], 1)
-            x_enc_t = self.enc(x_enc_embedding)
+            x_enc_embed = cat(
+                [f_x_t, c_t, h[-1]], 1) if not c_t is None else cat([f_x_t, h[-1]], 1)
+            x_enc_t = self.enc(x_enc_embed)
             x_enc_mean_t = x_enc_t[:, :self.z_dim]
             x_enc_logvar_t = x_enc_t[:, self.z_dim:]
 
             # x - encode step t (prior)
-            x_prior_t = self.prior(h[-1])
+            x_prior_embed = cat(
+                [c_t, h[-1]], 1) if not c_t is None else cat([h[-1]], 1)
+            x_prior_t = self.prior(x_prior_embed)
             x_prior_mean_t = x_prior_t[:, :self.z_dim]
             x_prior_logvar_t = x_prior_t[:, self.z_dim:]
 
@@ -185,8 +194,9 @@ class VRNN(nn.Module):
             f_z_t = self.f_z(z_t)
 
             # z - decode step t to generate x_t
-            x_dec_embedding = cat([f_z_t, h[-1]], 1)
-            x_dec_t = self.dec(x_dec_embedding)
+            x_dec_embed = cat(
+                [f_z_t, c_t, h[-1]], 1) if not c_t is None else cat([f_z_t, h[-1]], 1)
+            x_dec_t = self.dec(x_dec_embed)
             x_dec_mean_t = x_dec_t[:, :self.dim]
             x_dec_logvar_t = x_dec_t[:, self.dim:]
 
@@ -216,11 +226,15 @@ class VRNN(nn.Module):
         sample[tensor(fut_len, batch_size, dims)]: predicted trajectories
         """
         _, batch_size, _ = h.shape
-
+        
+        c_t = kwargs.get('context')
+        
         samples = zeros(fut_len, batch_size, self.dim).to(self.device)
         for t in range(fut_len):
             # x - encode hidden state to generate latent space (prior)
-            x_prior_t = self.prior(h[-1])
+            x_prior_embed = cat(
+                [c_t, h[-1]], 1) if not c_t is None else cat([h[-1]], 1)
+            x_prior_t = self.prior(x_prior_embed)
             x_prior_mean_t = x_prior_t[:, :self.z_dim]
             x_prior_logvar_t = x_prior_t[:, self.z_dim:]
 
@@ -231,8 +245,9 @@ class VRNN(nn.Module):
             f_z_t = self.f_z(z_t)
 
             # z - decode step t to generate x_t
-            x_dec_embedding = cat([f_z_t, h[-1]], 1)
-            x_dec_t = self.dec(x_dec_embedding)
+            x_dec_embed = cat(
+                [f_z_t, c_t, h[-1]], 1) if not c_t is None else cat([f_z_t, h[-1]], 1)
+            x_dec_t = self.dec(x_dec_embed)
             x_dec_mean_t = x_dec_t[:, :self.dim]
             
             # (N, D)

@@ -3,7 +3,7 @@
 # @brief:   This file contains the implementation common utility classes and 
 #           function needed by the modules in sprnn.
 # ------------------------------------------------------------------------------
-from numpy import dtype
+from numpy import dtype, mask_indices
 import torch
 import numpy as np
 
@@ -113,7 +113,16 @@ def compute_social_influences(
         
         for i in range(start, end):
             disp = goals[:traj_len, start:end] - traj[:traj_len, i].unsqueeze(1)
-            displacements[:, i, :num_agents] = disp[:, :num_agents]
+            
+            # TODO: make this faster
+            if num_agents > max_agents:
+                dist = torch.sqrt(torch.sum(disp ** 2, axis=2))
+                _, idx = torch.topk(dist, max_agents, largest=False)
+                
+                for t in range(traj_len):
+                    displacements[t, i, :] = disp[t, idx[t]]
+            else: 
+                displacements[:, i, :num_agents] = disp[:, :num_agents]
     
     if flatten:
         return displacements.flatten(start_dim=2)

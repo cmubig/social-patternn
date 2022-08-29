@@ -1,12 +1,11 @@
 {
-    "base_config": "./config/111days/base_config.json",
+    "base_config": "./social-patternn/config/mcts_max8/base_config.json",
 	
-	"exp_tag": "",
-	"trainer": "vrnn",
-	"coord": "rel",
+	"trainer": "patternn",
+	"coord": "abs",
 
 	"gpu_id": 0,
-	"use_cpu": true,
+	"use_cpu": false,
 	
 	"training_details": {
 		"num_samples": 20,
@@ -17,7 +16,7 @@
 		"ckpt_freq": 100,
 		"batch_size": 1,
 		"eval_batch_size": 8,
-		"num_epoch": 500,
+		"num_epoch": 1000,
 		"num_iter": -1,
 		"eval_num_iter": -1,
 		"test_num_iter": -1,
@@ -25,7 +24,7 @@
 		"update_lr": false,
 		"start": 0,
 		"patience": 100,
-		"warmup": true,
+		"warmup": false,
 		"warmup_epochs": 50,
 		"gradient_clip": 10,
 		"seed": 1
@@ -33,6 +32,7 @@
 	
 	"model_design": {
 		"dim": 3,
+		"scale": 1.0, 
 		"feat_enc_x": {
 			"in_size": 3,
 			"hidden_size": [96],
@@ -62,7 +62,7 @@
 			"layer_norm": false
 		},
 		"decoder": {
-			"in_size": 192,
+			"in_size": 288,
 			"hidden_size": [96],
 			"out_size": 6,
 			"dropout": 0.0,
@@ -72,6 +72,23 @@
 			"in_size": 192,
 			"hidden_size": 96,
 			"num_layers": 2
+		},
+		"pattern_net": {
+			"pat_len": 7,
+			"feat_pat": {
+				"in_size": -1,
+                "hidden_size": [96],
+                "out_size": 96,
+                "dropout": 0.0,
+                "layer_norm": false
+			},
+			"dec_pat": {
+				"in_size": 117,
+                "hidden_size": [96],
+                "out_size": -1,
+                "dropout": 0.0,
+                "layer_norm": false
+			}
 		}
 	}
 }

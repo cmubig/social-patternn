@@ -59,19 +59,19 @@ class VRNNTrainer(BaseTrainer):
 
             # NOTE:
             # hist_abs, hist_rel have shapes (hist_len, num_agents, dim)
-            # fut_abs, fut_rel have shapes(fut_len, num_agents, dim)
+            # fut_abs, fut_rel have shapes(fut_len, num_agents, dim)        
             batch = [tensor.to(self.device) for tensor in batch]   
-            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, weather, 
+            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, context, 
              seq_start_end) = batch
-            
+                        
             batch_size = hist_rel.shape[1]        
             
             if self.coord == "rel":
                 hist_rel = hist_rel[:, :, :self.dim]
-                kld, nll = self.model(hist_rel)
+                kld, nll = self.model(hist_rel, )
             else: # abs coords
                 hist_abs = hist_abs[:, :, :self.dim]
-                kld, nll = self.model(hist_abs)
+                kld, nll = self.model(hist_abs, )
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll)
             batch_loss += loss['Loss']
@@ -115,7 +115,7 @@ class VRNNTrainer(BaseTrainer):
                 break
            
             batch = [tensor.to(self.device) for tensor in batch]
-            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, weather, 
+            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, context, 
              seq_start_end) = batch
             
             # constrain trajectories to specified number of dims
@@ -127,9 +127,9 @@ class VRNNTrainer(BaseTrainer):
             
             # eval burn-in process 
             if self.coord == "rel":
-                kld, nll, h_H = self.model.evaluate(hist_rel)
+                kld, nll, h_H = self.model.evaluate(hist_rel, )
             else:
-                kld, nll, h_H = self.model.evaluate(hist_abs)
+                kld, nll, h_H = self.model.evaluate(hist_abs, )
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll)
                     
@@ -140,7 +140,7 @@ class VRNNTrainer(BaseTrainer):
                 h = h_H.clone()
                 
                 # run inference to predict the trajectory's future steps
-                pred = self.model.inference(self.fut_len, h)
+                pred = self.model.inference(self.fut_len, h, )
                 
                 if self.coord == "rel":    
                     # convert the prediction to absolute coords
@@ -185,7 +185,7 @@ class VRNNTrainer(BaseTrainer):
                 break
             
             batch = [tensor.to(self.device) for tensor in batch]
-            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, weather, 
+            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, context, 
              seq_start_end) = batch
             
             # constrain trajectories to specified number of agents and dims
@@ -197,9 +197,9 @@ class VRNNTrainer(BaseTrainer):
             
             # eval burn-in process 
             if self.coord == "rel":
-                kld, nll, h_H = self.model.evaluate(hist_rel)
+                kld, nll, h_H = self.model.evaluate(hist_rel, )
             else:
-                kld, nll, h_H = self.model.evaluate(hist_abs)
+                kld, nll, h_H = self.model.evaluate(hist_abs, )
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll)
                     

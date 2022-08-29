@@ -70,7 +70,7 @@ class SocialPatteRNNTrainer(BaseTrainer):
             hist_abs = hist_abs[:, :, :self.dim]
             pat_abs = pat_abs[:, :, :, :self.dim]    
             pat_rel = pat_rel[:, :, :, :self.dim]
-           
+            
             soc = mutils.compute_social_influences(
                 hist_abs.detach().cpu(), pat_abs[:, :, -1].detach().cpu(), 
                 seq_start_end, self.k_nearest, self.flatten).to(self.device)

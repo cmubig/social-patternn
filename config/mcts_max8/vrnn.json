@@ -1,9 +1,8 @@
 {
-    "base_config": "./config/111days/base_config.json",
+    "base_config": "./social-patternn/config/mcts_max8/base_config.json",
 	
-	"exp_tag": "",
 	"trainer": "vrnn",
-	"coord": "rel",
+	"coord": "abs",
 
 	"gpu_id": 0,
 	"use_cpu": true,
@@ -25,7 +24,7 @@
 		"update_lr": false,
 		"start": 0,
 		"patience": 100,
-		"warmup": true,
+		"warmup": false,
 		"warmup_epochs": 50,
 		"gradient_clip": 10,
 		"seed": 1

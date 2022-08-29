@@ -39,8 +39,6 @@ def run(
     # choose trainer 
     if trainer_type == "vrnn":
         from sprnn.trajpred_trainers.vrnn import VRNNTrainer as Trainer
-    elif trainer_type == "socvrnn":
-        from sprnn.trajpred_trainers.socvrnn import SocialVRNNTrainer as Trainer
     elif trainer_type == "patternn":
         from sprnn.trajpred_trainers.patternn import PatteRNNTrainer as Trainer
     elif trainer_type == "socpatternn-mlp" or trainer_type == "socpatternn-mha":

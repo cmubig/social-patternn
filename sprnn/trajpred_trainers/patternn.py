@@ -61,7 +61,7 @@ class PatteRNNTrainer(BaseTrainer):
             # hist_abs, hist_rel have shapes (hist_len, num_agents, dim)
             # fut_abs, fut_rel have shapes(fut_len, num_agents, dim)
             batch = [tensor.to(self.device) for tensor in batch]   
-            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, weather, 
+            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, context, 
              seq_start_end) = batch
             
             batch_size = hist_rel.shape[1]        
@@ -72,10 +72,10 @@ class PatteRNNTrainer(BaseTrainer):
             
             if self.coord == "rel":
                 hist_rel = hist_rel[:, :, :self.dim]
-                kld, nll, mse = self.model(hist_rel, pat_rel)
+                kld, nll, mse = self.model(hist_rel, pat_rel, )
             else:
                 hist_abs = hist_abs[:, :, :self.dim]
-                kld, nll, mse = self.model(hist_abs, pat_rel)
+                kld, nll, mse = self.model(hist_abs, pat_rel, )
                 
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             batch_loss += loss['Loss']
@@ -120,7 +120,7 @@ class PatteRNNTrainer(BaseTrainer):
                 break
            
             batch = [tensor.to(self.device) for tensor in batch]
-            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, weather, 
+            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, context, 
              seq_start_end) = batch
             
             batch_size = hist_abs.shape[1]
@@ -133,9 +133,11 @@ class PatteRNNTrainer(BaseTrainer):
             
             # eval burn-in process 
             if self.coord == "rel":
-                kld, nll, mse, h_H, pat_H = self.model.evaluate(hist_rel, pat_rel)
+                kld, nll, mse, h_H, pat_H = self.model.evaluate(
+                    hist_rel, pat_rel, )
             else:
-                kld, nll, mse, h_H, pat_H = self.model.evaluate(hist_abs, pat_rel)
+                kld, nll, mse, h_H, pat_H = self.model.evaluate(
+                    hist_abs, pat_rel, )
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             
@@ -146,7 +148,7 @@ class PatteRNNTrainer(BaseTrainer):
                 h, pat = h_H.clone(), pat_H.clone()
 
                 # run inference to predict the trajectory's future steps
-                pred = self.model.inference(self.fut_len, h, pat)
+                pred = self.model.inference(self.fut_len, h, pat, )
                 
                 if self.coord == "rel":
                     # convert the prediction to absolute coords
@@ -192,7 +194,7 @@ class PatteRNNTrainer(BaseTrainer):
                 break
            
             batch = [tensor.to(self.device) for tensor in batch]
-            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, weather, 
+            (hist_abs, pat_abs, fut_abs, hist_rel, pat_rel, fut_rel, context, 
              seq_start_end) = batch
             
             batch_size = hist_abs.shape[1]
@@ -205,9 +207,11 @@ class PatteRNNTrainer(BaseTrainer):
             
             # eval burn-in process 
             if self.coord == "rel":
-                kld, nll, mse, h_H, pat_H = self.model.evaluate(hist_rel, pat_rel)
+                kld, nll, mse, h_H, pat_H = self.model.evaluate(
+                    hist_rel, pat_rel, )
             else:
-                kld, nll, mse, h_H, pat_H = self.model.evaluate(hist_abs, pat_rel)
+                kld, nll, mse, h_H, pat_H = self.model.evaluate(
+                    hist_abs, pat_rel, )
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             
@@ -218,7 +222,7 @@ class PatteRNNTrainer(BaseTrainer):
                 h, pat = h_H.clone(), pat_H.clone()
 
                 # run inference to predict the trajectory's future steps
-                pred = self.model.inference(self.fut_len, h, pat)
+                pred = self.model.inference(self.fut_len, h, pat, )
                 
                 if self.coord == "rel":
                     # convert the prediction to absolute coords

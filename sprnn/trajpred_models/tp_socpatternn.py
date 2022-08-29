@@ -75,7 +75,7 @@ class InteractionNet(nn.Module):
         x = x.flatten(start_dim=1)
         
         # down-project attended features
-        x = self.proj(x)
+        # x = self.proj(x)
         
         # return x, attention
         return x
@@ -98,6 +98,7 @@ class SocialPatteRNN(VRNN):
         
         pattern_net = dotdict(self.config.pattern_net)
         self.pat_len = pattern_net.pat_len
+        self.with_soc_feature = pattern_net.with_soc_feature
         
         # pattern_net - feature extractor
         feat_pat = dotdict(pattern_net.feat_pat)
@@ -168,7 +169,10 @@ class SocialPatteRNN(VRNN):
             
             # patternnet - predict future pattern 
             p_tm1 = pat[t-1].flatten(start_dim=1)
-            p_embed = cat([p_tm1, s_tm1, h[-1]], 1)
+            if self.with_soc_feature:
+                p_embed = cat([p_tm1, f_s_tm1, h[-1]], 1)
+            else: 
+                p_embed = cat([p_tm1, s_tm1, h[-1]], 1)
             p_t_dec = self.dec_pat(p_embed).view(-1, self.pat_len, self.dim)
             
             # patternnet - extract pattern features 
@@ -256,7 +260,10 @@ class SocialPatteRNN(VRNN):
             s_tm1 = s_tm1.flatten(start_dim=1)
             
             # patternnet - predict future pattern 
-            p_embed = cat([p_tm1, s_tm1, h[-1]], 1)
+            if self.with_soc_feature:
+                p_embed = cat([p_tm1, f_s_tm1, h[-1]], 1)
+            else: 
+                p_embed = cat([p_tm1, s_tm1, h[-1]], 1)
             p_t_dec = self.dec_pat(p_embed)
             
             # patternnet - extract pattern features
@@ -346,7 +353,10 @@ class SocialPatteRNN(VRNN):
             s_tm1 = s_tm1.flatten(start_dim=1)
             
             # patternnet - predict future pattern 
-            p_embed = cat([p_tm1, s_tm1, h[-1]], 1)
+            if self.with_soc_feature:
+                p_embed = cat([p_tm1, f_s_tm1, h[-1]], 1)
+            else: 
+                p_embed = cat([p_tm1, s_tm1, h[-1]], 1)
             p_t_dec = self.dec_pat(p_embed)
             
             # patternnet - extract pattern features
