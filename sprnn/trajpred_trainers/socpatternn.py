@@ -287,10 +287,27 @@ class SocialPatteRNNTrainer(BaseTrainer):
     
         _, _, _, h, pat, soc = self.model.evaluate(
             hist_abs, hist_abs, patterns, soc, seq_start_end)
-                        
-        # run inference to predict the trajectory's future steps
+        
+        # repeat hidden state and final pattern self.num_samples times to 
+        # parallelize inference
+        # import pdb; pdb.set_trace()
+        h = h.repeat(1, self.num_samples, 1)
+        pat = pat.repeat(self.num_samples, 1)
+        soc = soc.repeat(self.num_samples, 1)
+        seq_se = torch.LongTensor(
+            [[i, i + N] for i in range(0, N * self.num_samples, N)])
+
         pred = self.model.inference(
-            hist_abs[-1], self.fut_len, h, pat, soc, seq_start_end, self.coord)
+            hist_abs[-1], self.fut_len, h, pat, soc, seq_se, self.coord)
+        
+        # run inference to predict the trajectory's future steps
+        # pred_list = []
+        # for _ in range(self.num_samples):
+        #     h_, pat_, soc_ = h.clone(), pat.clone(), soc.clone()
+        #     pred = self.model.inference(
+        #         hist_abs[-1], self.fut_len, h_, pat_, soc_, seq_start_end, 
+        #         self.coord)
+        #     pred_list.append(pred.cpu())
         
         return pred.cpu()
     

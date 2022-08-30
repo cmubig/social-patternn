@@ -237,10 +237,13 @@ class VRNNTrainer(BaseTrainer):
         
         hist_abs = hist_abs.to(self.device)
         
-        kld, nll, h = self.model.evaluate(hist_abs)
+        _, _, h = self.model.evaluate(hist_abs)
+        
+        # repeat hidden state self.num_samples times to parallelize inference
+        h = h.repeat(1, self.num_samples, 1)
                         
-        # run inference to predict the trajectory's future steps
         pred = self.model.inference(self.fut_len, h)
+        
         return pred.cpu()
         
     def setup(self) -> None:

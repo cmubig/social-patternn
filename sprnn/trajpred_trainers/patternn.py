@@ -254,7 +254,12 @@ class PatteRNNTrainer(BaseTrainer):
         pat = hist_abs[:self.pat_len]
         patterns[0] = torch.transpose(pat[1:] - pat[:-1], 0, 1).to(self.device)
         _, _, _, h, pat = self.model.evaluate(hist_abs, patterns)
-                        
+        
+        # repeat hidden state and final pattern self.num_samples times to 
+        # parallelize inference
+        h = h.repeat(1, self.num_samples, 1)
+        pat = pat.repeat(self.num_samples, 1, 1)
+         
         # run inference to predict the trajectory's future steps
         pred = self.model.inference(self.fut_len, h, pat)
         return pred.cpu()
