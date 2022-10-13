@@ -367,7 +367,7 @@ class BaseTrainer:
         -------
         filename[str]: checkpoint filename. 
         """
-        self.logger.debug(f"{self.name} loading checkpoint from: {filename}")
+        self.logger.info(f"{self.name} loading checkpoint from: {filename}")
         model = torch.load(filename, map_location=torch.device('cpu'))
         self.model.load_state_dict(model['model'])
         self.optimizer.load_state_dict(model['optimizer'])

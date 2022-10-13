@@ -1,5 +1,5 @@
 {
-    "base_config": "./config/mcts_max8/base_config.json",
+    "base_config": "./social-patternn/config/mcts_max8/base_config.json",
 	
 	"trainer": "vrnn",
 	"coord": "abs",

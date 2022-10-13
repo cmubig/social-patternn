@@ -243,6 +243,26 @@ class PatteRNNTrainer(BaseTrainer):
                     f"epoch-{epoch+1}_test-{i}")
                         
         return metrics
+    
+    @torch.no_grad()
+    def eval_sample(self, hist_abs):
+        # import pdb; pdb.set_trace()
+        # shape = (hist_len, num_agents, dim)
+        H, N, D = hist_abs.shape
+        hist_abs = hist_abs.to(self.device)
+        patterns = torch.zeros((H, N, self.pat_len-1, D)).to(self.device)
+        pat = hist_abs[:self.pat_len]
+        patterns[0] = torch.transpose(pat[1:] - pat[:-1], 0, 1).to(self.device)
+        _, _, _, h, pat = self.model.evaluate(hist_abs, patterns)
+        
+        # repeat hidden state and final pattern self.num_samples times to 
+        # parallelize inference
+        h = h.repeat(1, self.num_samples, 1)
+        pat = pat.repeat(self.num_samples, 1, 1)
+         
+        # run inference to predict the trajectory's future steps
+        pred = self.model.inference(self.fut_len, h, pat)
+        return pred.cpu()
         
     def setup(self) -> None:
         """ Sets the trainer as follows:

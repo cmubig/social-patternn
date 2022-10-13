@@ -231,6 +231,20 @@ class VRNNTrainer(BaseTrainer):
                     f"epoch-{epoch+1}_test-{i}")
                         
         return metrics
+    
+    @torch.no_grad()
+    def eval_sample(self, hist_abs):
+        
+        hist_abs = hist_abs.to(self.device)
+        
+        _, _, h = self.model.evaluate(hist_abs)
+        
+        # repeat hidden state self.num_samples times to parallelize inference
+        h = h.repeat(1, self.num_samples, 1)
+                        
+        pred = self.model.inference(self.fut_len, h)
+        
+        return pred.cpu()
         
     def setup(self) -> None:
         """ Sets the trainer as follows:
