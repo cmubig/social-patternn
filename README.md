@@ -22,6 +22,9 @@ information from the patterns and aggregates it as social context.
   <img width="800" src="./readme/model.png" alt="SocialPatteRNN">
 </p>
 
+#### Note:
+This version of the code now supports context information. 
+
 ## Installation
 
 Setup a conda environment:
@@ -88,7 +91,7 @@ python run.py --exp config/111days/socpatternn-mha.json --run test --ckpt_num 10
 
 For each experiment, we provide the configuration files for all the ablations 
 performed in our paper. They are organized as follows:
-```graphql
+```
 config/
 ├─ 111days
 |   ├─ base_config.json        
@@ -100,24 +103,7 @@ config/
 ├─ ...
 ```
 
-## Results
-
-Here we report the performance of our Social-PatteRNN model as well as its
-ablations in terms of Average Displacement Error (ADE) and Final Displacement 
-Error (FDE).
-
-### TrajAir 111days
-| Baselines  | ADE  | FDE  | 
-|:----------:|:----:|:----:|
-| VRNN       | 0.660 | 1.392 | 
-| PATTERNN | 0.599 | 1.344 | 
-| SOCPATTERNN-MLP  | 0.555 | 1.203 | 
-| SOCPATTERNN-MHA   | **0.541** | **1.192** | 
-
-
-### TODO: add best checkpoints to repo
-
-## Citing
+## TODO: add results, checkpoints and reference
 
 #### TODO: update this
 ```tex

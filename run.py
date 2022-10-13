@@ -61,8 +61,7 @@ def run(
     # this is just to have a copy of the original config
     config['load_ckpt'] = False
     config['load_ckpts_from_path'] = False
-    trainer.save_config(
-        config, filename=f'config_{run}.json', log_dump=False)
+    trainer.save_config(config, filename=f'config_{run}.json', log_dump=False)
 
 def main() -> None:
     parser = argparse.ArgumentParser()

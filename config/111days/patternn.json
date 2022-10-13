@@ -41,15 +41,22 @@
 			"dropout": 0.0,
 			"layer_norm": false
 		},
+		"feat_enc_c": {
+			"in_size": 2,
+			"hidden_size": [96],
+			"out_size": 96,
+			"dropout": 0.0,
+			"layer_norm": false
+		},
 		"encoder": {
-			"in_size": 192,
+			"in_size": 288,
 			"hidden_size": [96],
 			"out_size": 48,
 			"dropout": 0.0,
 			"layer_norm": false
 		},
 		"prior": {
-			"in_size": 96,
+			"in_size": 192,
 			"hidden_size": [96],
 			"out_size": 48,
 			"dropout": 0.0,
@@ -63,14 +70,14 @@
 			"layer_norm": false
 		},
 		"decoder": {
-			"in_size": 288,
+			"in_size": 384,
 			"hidden_size": [96],
 			"out_size": 6,
 			"dropout": 0.0,
 			"layer_norm": false
 		},
 		"rnn": {
-			"in_size": 192,
+			"in_size": 288,
 			"hidden_size": 96,
 			"num_layers": 2
 		},
@@ -84,7 +91,7 @@
                 "layer_norm": false
 			},
 			"dec_pat": {
-				"in_size": 117,
+				"in_size": 213,
                 "hidden_size": [96],
                 "out_size": -1,
                 "dropout": 0.0,

@@ -1,9 +1,8 @@
 # ------------------------------------------------------------------------------
 # @file:    trajair_dataset.py
-# @brief:   Contains the TrajAir DataLoader.
+# @brief:   Contains the TrajAir DataLoader for top-down view trajectory.
 # ------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
 # general includes
 import logging
 import os
@@ -73,7 +72,6 @@ class TrajAirDataset(Dataset):
             data = read_file(path, delim)
             data = np.around(data, decimals=3)
 
-    
             frames = np.unique(data[:, 0]).tolist()
             frame_data = []
             for frame in frames:
@@ -98,7 +96,7 @@ class TrajAirDataset(Dataset):
                 pat_seq = np.zeros((len(num_agents), obs_final_len+1, dim, pat_len))
                 pat_seq_rel = np.zeros((len(num_agents), obs_final_len+1, dim, pat_len-1))
                 
-                context = np.zeros((len(num_agents), 2, seq_final_len))
+                weather = np.zeros((len(num_agents), 2, seq_final_len))
                 
                 num_agents_considered = 0
                 for _, agent_id in enumerate(num_agents):
@@ -139,8 +137,7 @@ class TrajAirDataset(Dataset):
                     
                     agent_seq = np.hstack((obs, pred))[:, :seq_final_len]
                     
-                    # context here is the weather
-                    agent_context = agent_seq[-2:, :]
+                    agent_weather = agent_seq[-2:, :]
 
                     rel_agent_seq = np.zeros(agent_seq.shape)
                     rel_agent_seq[:, 1:] = agent_seq[:, 1:] - agent_seq[:, :-1]
@@ -156,7 +153,7 @@ class TrajAirDataset(Dataset):
                     seq_rel[_idx, :, pad_front:pad_end] = rel_agent_seq[:3, :]
                     pat_seq_rel[_idx, pad_front:pad_end] = patterns_rel
                     pat_seq[_idx, pad_front:pad_end] = patterns
-                    context[_idx, :, pad_front:pad_end] = agent_context
+                    weather[_idx, :, pad_front:pad_end] = agent_weather
                     num_agents_considered += 1
 
                 if num_agents_considered >= min_agent:
@@ -165,7 +162,7 @@ class TrajAirDataset(Dataset):
                     seq_list_rel.append(seq_rel[:num_agents_considered])
                     pattern_context_list.append(pat_seq[:num_agents_considered])
                     pattern_context_list_rel.append(pat_seq_rel[:num_agents_considered])
-                    weather_context_list.append(context[:num_agents_considered])
+                    weather_context_list.append(weather[:num_agents_considered])
                     
         print("")
         self.num_seq = len(seq_list)

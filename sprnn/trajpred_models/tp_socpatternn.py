@@ -156,12 +156,15 @@ class SocialPatteRNN(VRNN):
         
         h = Variable(
             zeros(self.num_layers, batch_size, self.rnn_dim)).to(self.device)
-        c_t = kwargs.get('context')
+        context = kwargs.get('context')
         
         for t in range(1, timesteps):
             # extract location features
             x_t = hist[t]
             f_x_t = self.f_x(x_t) 
+            
+            # extract the context
+            f_c_t = None if context is None else self.f_c(context[t])
             
             # interactionnet - extract social influence features
             s_tm1 = soc[t-1]
@@ -172,12 +175,12 @@ class SocialPatteRNN(VRNN):
             p_tm1 = pat[t-1].flatten(start_dim=1)
             if self.with_soc_feature:
                 p_embed = cat(
-                    [p_tm1, f_s_tm1, h[-1]], 1) if c_t is None else cat(
-                        [p_tm1, f_s_tm1, c_t, h[-1]], 1)
+                    [p_tm1, f_s_tm1, h[-1]], 1) if f_c_t is None else cat(
+                        [p_tm1, f_s_tm1, f_c_t, h[-1]], 1)
             else: 
                 p_embed = cat(
-                    [p_tm1, s_tm1, h[-1]], 1) if c_t is None else cat(
-                        [p_tm1, s_tm1, c_t, h[-1]], 1)
+                    [p_tm1, s_tm1, h[-1]], 1) if f_c_t is None else cat(
+                        [p_tm1, s_tm1, f_c_t, h[-1]], 1)
             p_t_dec = self.dec_pat(p_embed).view(-1, self.pat_len, self.dim)
             
             # patternnet - extract pattern features 
@@ -186,14 +189,14 @@ class SocialPatteRNN(VRNN):
             
             # c-vae - encoder
             x_enc_embed = cat(
-                [f_x_t, f_s_tm1, h[-1]], 1) if c_t is None else cat(
-                    [f_x_t, f_s_tm1, c_t, h[-1]], 1)
+                [f_x_t, f_s_tm1, h[-1]], 1) if f_c_t is None else cat(
+                    [f_x_t, f_s_tm1, f_c_t, h[-1]], 1)
             x_enc_t = self.enc(x_enc_embed)
             x_enc_mean_t = x_enc_t[:, :self.z_dim]
             x_enc_logvar_t = x_enc_t[:, self.z_dim:]
 
             # cvae - prior
-            x_prior_embed = h[-1] if c_t is None else cat([c_t, h[-1]], 1)
+            x_prior_embed = h[-1] if f_c_t is None else cat([f_c_t, h[-1]], 1)
             x_prior_t = self.prior(x_prior_embed)
             x_prior_mean_t = x_prior_t[:, :self.z_dim]
             x_prior_logvar_t = x_prior_t[:, self.z_dim:]
@@ -206,14 +209,14 @@ class SocialPatteRNN(VRNN):
 
             # cvae - decoder
             x_dec_embed = cat(
-                [f_z_t, f_p_t, f_s_tm1, h[-1]], 1) if c_t is None else cat(
-                    [f_z_t, f_p_t, f_s_tm1, c_t, h[-1]], 1)
+                [f_z_t, f_p_t, f_s_tm1, h[-1]], 1) if f_c_t is None else cat(
+                    [f_z_t, f_p_t, f_s_tm1, f_c_t, h[-1]], 1)
             x_dec_t = self.dec(x_dec_embed)
             x_dec_mean_t = x_dec_t[:, :self.dim]
             x_dec_logvar_t = x_dec_t[:, self.dim:]
 
             # rnn
-            h_embed = cat([f_x_t, f_z_t], 1).unsqueeze(0)
+            h_embed = cat([f_x_t, f_z_t, f_c_t], 1).unsqueeze(0)
             _, h = self.rnn(h_embed, h)
 
             # compute losses
@@ -255,7 +258,7 @@ class SocialPatteRNN(VRNN):
         
         h = Variable(
             zeros(self.num_layers, batch_size, self.rnn_dim).to(self.device))
-        c_t = kwargs.get('context')
+        context = kwargs.get('context')
         p_tm1 = pat[0].flatten(start_dim=1)
         s_tm1 = soc[0]
         
@@ -264,6 +267,9 @@ class SocialPatteRNN(VRNN):
             x_t = hist[t]
             f_x_t = self.f_x(x_t) 
             
+            # extract the context
+            f_c_t = None if context is None else self.f_c(context[t])
+            
             # interactionnet - extract social influence features
             f_s_tm1 = self.interaction_net(s_tm1)
             s_tm1 = s_tm1.flatten(start_dim=1)
@@ -271,12 +277,12 @@ class SocialPatteRNN(VRNN):
             # patternnet - predict future pattern 
             if self.with_soc_feature:
                 p_embed = cat(
-                    [p_tm1, f_s_tm1, h[-1]], 1) if c_t is None else cat(
-                        [p_tm1, f_s_tm1, c_t, h[-1]], 1)
+                    [p_tm1, f_s_tm1, h[-1]], 1) if f_c_t is None else cat(
+                        [p_tm1, f_s_tm1, f_c_t, h[-1]], 1)
             else: 
                 p_embed = cat(
-                    [p_tm1, s_tm1, h[-1]], 1) if c_t is None else cat(
-                        [p_tm1, s_tm1, c_t, h[-1]], 1)
+                    [p_tm1, s_tm1, h[-1]], 1) if f_c_t is None else cat(
+                        [p_tm1, s_tm1, f_c_t, h[-1]], 1)
             p_t_dec = self.dec_pat(p_embed)
             
             # patternnet - extract pattern features
@@ -289,14 +295,14 @@ class SocialPatteRNN(VRNN):
             
             # c-vae - encoder
             x_enc_embed = cat(
-                [f_x_t, f_s_tm1, h[-1]], 1) if c_t is None else cat(
-                    [f_x_t, f_s_tm1, c_t, h[-1]], 1)
+                [f_x_t, f_s_tm1, h[-1]], 1) if f_c_t is None else cat(
+                    [f_x_t, f_s_tm1, f_c_t, h[-1]], 1)
             x_enc_t = self.enc(x_enc_embed)
             x_enc_mean_t = x_enc_t[:, :self.z_dim]
             x_enc_logvar_t = x_enc_t[:, self.z_dim:]
 
             # c-vae - prior
-            x_prior_embed = h[-1] if c_t is None else cat([c_t, h[-1]], 1)
+            x_prior_embed = h[-1] if f_c_t is None else cat([f_c_t, h[-1]], 1)
             x_prior_t = self.prior(x_prior_embed)
             x_prior_mean_t = x_prior_t[:, :self.z_dim]
             x_prior_logvar_t = x_prior_t[:, self.z_dim:]
@@ -309,14 +315,14 @@ class SocialPatteRNN(VRNN):
 
             # cvae - decoder
             x_dec_embed = cat(
-                [f_z_t, f_p_t, f_s_tm1, h[-1]], 1) if c_t is None else cat(
-                    [f_z_t, f_p_t, f_s_tm1, c_t, h[-1]], 1)
+                [f_z_t, f_p_t, f_s_tm1, h[-1]], 1) if f_c_t is None else cat(
+                    [f_z_t, f_p_t, f_s_tm1, f_c_t, h[-1]], 1)
             x_dec_t = self.dec(x_dec_embed)
             x_dec_mean_t = x_dec_t[:, :self.dim]
             x_dec_logvar_t = x_dec_t[:, self.dim:]
 
             # rnn
-            h_embed = cat([f_x_t, f_z_t], 1).unsqueeze(0)
+            h_embed = cat([f_x_t, f_z_t, f_c_t], 1).unsqueeze(0)
             _, h = self.rnn(h_embed, h)
 
             # compute losses
@@ -361,11 +367,14 @@ class SocialPatteRNN(VRNN):
         p_tm1 = pat
         s_tm1 = soc
         x_abs_t = x_abs
-        c_t = kwargs.get('context')
+        context = kwargs.get('context')
         
         samples = zeros(fut_len, batch_size, self.dim).to(self.device)
         
         for t in range(fut_len):
+            # extract the context
+            f_c_t = None if context is None else self.f_c(context[t])
+
             # interactionnet - extract social influence features
             f_s_tm1 = self.interaction_net(s_tm1)
             s_tm1 = s_tm1.flatten(start_dim=1)
@@ -373,12 +382,12 @@ class SocialPatteRNN(VRNN):
             # patternnet - predict future pattern 
             if self.with_soc_feature:
                 p_embed = cat(
-                    [p_tm1, f_s_tm1, h[-1]], 1) if c_t is None else cat(
-                        [p_tm1, f_s_tm1, c_t, h[-1]], 1)
+                    [p_tm1, f_s_tm1, h[-1]], 1) if f_c_t is None else cat(
+                        [p_tm1, f_s_tm1, f_c_t, h[-1]], 1)
             else: 
                 p_embed = cat(
-                    [p_tm1, s_tm1, h[-1]], 1) if c_t is None else cat(
-                        [p_tm1, s_tm1, c_t, h[-1]], 1)
+                    [p_tm1, s_tm1, h[-1]], 1) if f_c_t is None else cat(
+                        [p_tm1, s_tm1, f_c_t, h[-1]], 1)
             p_t_dec = self.dec_pat(p_embed)
             
             # patternnet - extract pattern features
@@ -389,7 +398,7 @@ class SocialPatteRNN(VRNN):
             p_t_dec = p_t_dec.view(-1, self.pat_len, self.dim)
             
             # cvae - prior
-            x_prior_embed = h[-1] if c_t is None else cat([c_t, h[-1]], 1)
+            x_prior_embed = h[-1] if f_c_t is None else cat([f_c_t, h[-1]], 1)
             x_prior_t = self.prior(x_prior_embed)
             x_prior_mean_t = x_prior_t[:, :self.z_dim]
             x_prior_logvar_t = x_prior_t[:, self.z_dim:]
@@ -402,8 +411,8 @@ class SocialPatteRNN(VRNN):
 
             # cvae - decoder 
             x_dec_embed = cat(
-                [f_z_t, f_p_t, f_s_tm1, h[-1]], 1) if c_t is None else cat(
-                    [f_z_t, f_p_t, f_s_tm1, c_t, h[-1]], 1)
+                [f_z_t, f_p_t, f_s_tm1, h[-1]], 1) if f_c_t is None else cat(
+                    [f_z_t, f_p_t, f_s_tm1, f_c_t, h[-1]], 1)
             x_dec_t = self.dec(x_dec_embed)
             x_dec_mean_t = x_dec_t[:, :self.dim]
             
@@ -414,7 +423,7 @@ class SocialPatteRNN(VRNN):
             f_x_t = self.f_x(x_dec_mean_t)
 
             # rnn
-            h_embed = cat([f_x_t, f_z_t], 1).unsqueeze(0)
+            h_embed = cat([f_x_t, f_z_t, f_c_t], 1).unsqueeze(0)
             _, h = self.rnn(h_embed, h)
             
             # compute new social influence

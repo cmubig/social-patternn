@@ -211,8 +211,9 @@ class BaseTrainer:
         
         Inputs:
         -------
-        do_eval[boolean]: if True it will run validation, otherwise it will 
+        do_eval[bool]: if True it will run validation, otherwise it will 
         run testing.
+        do_best[bool]: if True it will run testing on the best saved checkpoint.
         """
         tb_name = 'Val'if do_eval else 'Test'
         self.logger.info(f"Running evaluation on {tb_name}!")
@@ -343,6 +344,7 @@ class BaseTrainer:
         Inputs:
         -------
         epoch[int]: epoch number of corresponding model.
+        save_best[bool]: if True saves the model; assumes it's the best so far. 
         """
         ckpt_file = os.path.join(self.out.ckpts, f'ckpt_{epoch}.pth')
         torch.save({
@@ -415,6 +417,10 @@ class BaseTrainer:
         if torch.is_tensor(patterns):
             patterns = patterns.cpu() if patterns.is_cuda else patterns
             patterns = patterns.numpy()
+        
+        vis.plot_trajectories(
+            self.config.VISUALIZATION, hist, fut, preds, seq_start_end, 
+            best_sample_idx, filename, patterns=patterns)
         
         vis.plot_trajectories_animated(
             self.config.VISUALIZATION, hist, fut, preds, seq_start_end, 

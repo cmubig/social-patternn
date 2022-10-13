@@ -142,13 +142,11 @@ class SocialPatteRNNTrainer(BaseTrainer):
             if self.coord == "rel":
                 kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
                     hist_rel, hist_abs, pat_rel, soc, seq_start_end, 
-                    # context=context
-                )
+                    context=context)
             else: 
                 kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
                     hist_abs, hist_abs, pat_rel, soc, seq_start_end, 
-                    # context=context
-                )
+                    context=context)
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             
@@ -161,8 +159,7 @@ class SocialPatteRNNTrainer(BaseTrainer):
                 # run inference to predict the trajectory's future steps
                 pred = self.model.inference(
                     x_H, self.fut_len, h, pat, soc, seq_start_end, self.coord,
-                    # context=context
-                )
+                    context=context)
                 
                 if self.coord == "rel":
                     # convert the prediction to absolute coords
@@ -226,13 +223,11 @@ class SocialPatteRNNTrainer(BaseTrainer):
             if self.coord == "rel":
                 kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
                     hist_rel, hist_abs, pat_rel, soc, seq_start_end,
-                    # context=context
-                )
+                    context=context)
             else: 
                 kld, nll, mse, h_H, pat_H, soc_H = self.model.evaluate(
                     hist_abs, hist_abs, pat_rel, soc, seq_start_end, 
-                    # context=context
-                )
+                    context=context)
             
             loss = self.compute_loss(epoch=epoch, kld=kld, nll=nll, mse=mse)
             
@@ -245,8 +240,7 @@ class SocialPatteRNNTrainer(BaseTrainer):
                 # run inference to predict the trajectory's future steps
                 pred = self.model.inference(
                     x_H, self.fut_len, h, pat, soc, seq_start_end, self.coord, 
-                    # context=context
-                )
+                    context=context)
                 
                 if self.coord == "rel":
                     # convert the prediction to absolute coords
