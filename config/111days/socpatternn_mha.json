@@ -1,7 +1,7 @@
 {
     "base_config": "./config/111days/base_config.json",
 	
-	"exp_tag": "a",
+	"exp_tag": "",
 	"trainer": "socpatternn-mha",
 	"coord": "rel",
 

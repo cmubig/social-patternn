@@ -388,11 +388,13 @@ class BaseTrainer:
         seq_start_end[torch.tensor]: tensor indicating where scenes start/end.
         filename[str]: plot filename. 
         """
+        i = kwargs.get('idx') if not kwargs.get('idx') is None else 0
+        
         # pred = pred_list[best_sample_idx]
         preds = preds.cpu() if preds.is_cuda else preds
         preds = torch.transpose(preds, 2, 3).numpy()
         # np.save(
-        #     os.path.join(self.out.trajs, f"traj-{i}_pred.npy"), pred)
+        #     os.path.join(self.out.trajs, f"traj-{i}_pred.npy"), preds)
     
         hist = hist.cpu() if hist.is_cuda else hist
         hist = torch.transpose(hist, 1, 2).numpy()
@@ -404,17 +406,19 @@ class BaseTrainer:
         # np.save(
         #     os.path.join(self.out.trajs, f"traj-{i}_fut.npy"), fut)
         
-        best_sample_idx = (best_sample_idx.cpu() 
-            if best_sample_idx.is_cuda else best_sample_idx)
+        best_sample_idx = (best_sample_idx.cpu().numpy()
+            if best_sample_idx.is_cuda else best_sample_idx.numpy())
+        # np.save(
+        #     os.path.join(self.out.trajs, f"traj-{i}_best-idx.npy"), fut)
         
         patterns = kwargs.get('patterns')
         if torch.is_tensor(patterns):
             patterns = patterns.cpu() if patterns.is_cuda else patterns
             patterns = patterns.numpy()
         
-        vis.plot_trajectories(
+        vis.plot_trajectories_animated(
             self.config.VISUALIZATION, hist, fut, preds, seq_start_end, 
-            best_sample_idx.numpy(), filename, patterns=patterns)
+            best_sample_idx, filename, patterns=patterns)
 
     def compute_loss(self, **kwargs) -> dict:
         """ Computes trainer's loss.
