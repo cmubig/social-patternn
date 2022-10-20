@@ -103,14 +103,88 @@ config/
 ├─ ...
 ```
 
-## TODO: add results, checkpoints and reference
+## Results 
 
-#### TODO: update this
-```tex
-@inproceedings{name,
-  title={Paper},
-  author={Author1 and Author2},
-  booktitle={Conference},
+<style>
+  .column {
+    float: left;
+    width: 33.33%;
+    padding: 5px;
+  }
+  .row::after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+</style>
+
+#### TrajAir (with weather context)
+
+| Baselines  | MinADE  | MinFDE  | 
+|:----------:|:----:|:----:|
+| VRNN       | 0.647 | 1.392 |
+| PATTERNN | 0.619 | 1.385 | 
+| SOCPATTERNN-MLP  | 0.608  | 1.203 | 
+| SOCPATTERNN-MHA   | **0.541** | **1.192** | 
+
+
+<div class="row">
+  <div class="column">
+    <img src="./readme/results/trajair_1.png" alt="Trajair" style="width:100%">
+  </div>
+  <!-- <div class="column">
+    <img src="./readme/results/trajair_2.png" alt="Trajair" style="width:100%">
+  </div> -->
+  <div class="column">
+    <img src="./readme/results/trajair_3.png" alt="Trajair" style="width:100%">
+  </div>
+</div>
+
+#### SDD
+
+| Baselines  | MinADE  | MinFDE  | 
+|:----------:|:----:|:----:|
+| VRNN       |  |  |
+| PATTERNN |  |  | 
+| SOCPATTERNN-MLP  |   |  | 
+| SOCPATTERNN-MHA   |  |  | 
+
+<div class="row">
+  <div class="column">
+    <img src="./readme/results/sdd_1.png" alt="SDD" style="width:100%">
+  </div>
+  <div class="column">
+    <img src="./readme/results/sdd_2.png" alt="SDD" style="width:100%">
+  </div>
+  <div class="column">
+    <img src="./readme/results/sdd_2.png" alt="SDD" style="width:100%">
+  </div>
+</div>
+
+#### NBA
+
+| Baselines  | MinADE  | MinFDE  | 
+|:----------:|:----:|:----:|
+| VRNN       |  |  |
+| PATTERNN |  |  | 
+| SOCPATTERNN-MLP  |   |  | 
+| SOCPATTERNN-MHA   |  |  | 
+
+<div class="row">
+  <div class="column">
+    <img src="./readme/results/nba_1.png" alt="NBA" style="width:100%">
+  </div>
+  <div class="column">
+    <img src="./readme/results/nba_2.png" alt="NBA" style="width:100%">
+  </div>
+</div>
+
+## Citation
+```
+@article{navarro2022social,
+  title={Social-PatteRNN: Socially-Aware Trajectory Prediction Guided by Motion Patterns},
+  author={Navarro, Ingrid and Oh, Jean},
+  journal={arXiv preprint arXiv:2209.05649},
   year={2022}
- }
+}
 ```

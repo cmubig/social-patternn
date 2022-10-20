@@ -7,7 +7,16 @@ __pycache__/
 *.so
 
 data/*
-out*
+
+out/*
+out/*/ckpts/*
+out/*/plots/*
+out/*/tb/*
+out/*/*log/*
+out/*/videos/*
+out/*/trajs/*
+
+out_old*
 
 # Distribution / packaging
 .Python
