@@ -270,7 +270,7 @@ class SocialPatteRNNTrainer(BaseTrainer):
     
     @torch.no_grad()
     def eval_sample(self, hist_abs):
-        # import pdb; pdb.set_trace()
+
         # shape = (hist_len, num_agents, dim)
         H, N, D = hist_abs.shape
         hist_abs = hist_abs.to(self.device)
